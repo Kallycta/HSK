@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HSK-тренер</title>
+
+  <!-- Рекомендуемый шрифт для интерфейса и китайских символов -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <h1>HSK-тренер</h1>
+    </header>
+
+    <!-- Главное меню -->
+    <main class="screen" id="screen-menu" aria-live="polite">
+      <div class="menu">
+        <button id="btn-dict" class="big-btn" aria-label="Открыть словарь">Словарь</button>
+        <button id="btn-cards" class="big-btn" aria-label="Открыть карточки">Карточки</button>
+        <button id="btn-test" class="big-btn" aria-label="Открыть тест">Тест</button>
+      </div>
+
+      <div class="hint" id="welcome-hint" role="dialog" aria-modal="false">
+        <p><strong>Привет!</strong><br>Чтобы всё заработало, зайдите в словарь и отметьте слова, которые вам уже знакомы!</p>
+        <div class="hint-actions">
+          <button id="welcome-ok" class="small-btn">ОК</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Словарь -->
+    <section class="screen hidden" id="screen-dict">
+      <div class="top-row">
+        <h2>Словарь</h2>
+        <button class="icon-btn" id="dict-close" title="Вернуться в меню">✕</button>
+      </div>
+
+      <div class="progress" id="dict-progress">Вы знаете 0% слов</div>
+
+      <div id="dict-list" class="list" role="list" aria-label="Список слов"></div>
+
+      <div class="list-footer">
+        <button id="to-top" class="small-btn hidden" title="Наверх">▲ Наверх</button>
+      </div>
+    </section>
+
+    <!-- Карточки -->
+    <section class="screen hidden" id="screen-cards">
+      <div class="top-row">
+        <h2>Карточки</h2>
+        <button class="icon-btn" id="cards-close" title="Вернуться в меню">✕</button>
+      </div>
+
+      <div class="cards-settings">
+        <label>Режим:
+          <select id="cards-mode" aria-label="Режим карточек">
+            <option value="repeat">Повторение</option>
+            <option value="new">Новые слова</option>
+            <option value="mix">Перемешать</option>
+          </select>
+        </label>
+        <button id="cards-start" class="small-btn">Начать</button>
+      </div>
+
+      <div id="cards-area" class="cards-area hidden" aria-live="polite">
+        <div id="cards-count" class="meta">ПРОЙДЕНО СЛОВ: 0</div>
+
+        <div class="card" id="card-wrapper" role="group" aria-label="Карточка слова">
+          <div id="card-hanzi" class="card-hanzi" aria-hidden="false"></div>
+          <div id="card-pinyin" class="card-pinyin" aria-hidden="false"></div>
+
+          <!-- вспомогательное место для показа русского при Open -->
+          <div id="card-main" class="card-main" aria-live="polite"></div>
+
+          <div class="card-controls">
+            <button id="card-open" class="small-btn">Открыть</button>
+          </div>
+        </div>
+
+        <div id="card-actions" class="card-actions hidden">
+          <button id="add-to-dict" class="small-btn">В СЛОВАРЬ</button>
+          <button id="card-next" class="small-btn">ДАЛЬШЕ</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Тест -->
+    <section class="screen hidden" id="screen-test">
+      <div class="top-row">
+        <h2>Тест — настройки</h2>
+        <button class="icon-btn" id="test-close" title="Вернуться в меню">✕</button>
+      </div>
+
+      <div class="test-settings">
+        <div class="row">
+          <label>Режим:
+            <select id="test-mode">
+              <option value="repeat">Повторение</option>
+              <option value="new">Новые</option>
+              <option value="mix">Перемешать</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row small-row">
+          <label>Карточки:
+            <button id="cards-decr" class="tiny-btn" aria-label="Уменьшить">–</button>
+            <span id="cards-num">10</span>
+            <button id="cards-incr" class="tiny-btn" aria-label="Увеличить">+</button>
+          </label>
+        </div>
+
+        <div class="row small-row">
+          <label>Время:
+            <button id="time-decr" class="tiny-btn">–</button>
+            <span id="time-num">∞</span>
+            <button id="time-incr" class="tiny-btn">+</button>
+          </label>
+        </div>
+
+        <div class="row small-row">
+          <label>Жизни:
+            <button id="life-decr" class="tiny-btn">–</button>
+            <span id="life-num">∞</span>
+            <button id="life-incr" class="tiny-btn">+</button>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Подсказки:
+            <select id="hints-select"><option value="yes">ДА</option><option value="no">НЕТ</option></select>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Карточки:
+            <select id="card-side">
+              <option value="hanzi">Ханзи</option>
+              <option value="pinyin">Пиньинь</option>
+              <option value="russian">Русский</option>
+            </select>
+          </label>
+
+          <label>Варианты:
+            <select id="option-side">
+              <option value="pinyin">Пиньинь</option>
+              <option value="hanzi">Ханзи</option>
+              <option value="russian">Русский</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="row">
+          <button id="start-test" class="small-btn">Начать</button>
+        </div>
+      </div>
+
+      <!-- Тело теста -->
+      <div id="test-area" class="hidden" aria-live="polite">
+        <div class="test-meta">
+          <div id="timer">Время: --</div>
+          <div id="cards-left">Осталось карточек: --</div>
+          <div id="lives-left">Жизни: --</div>
+        </div>
+
+        <div id="question-card" class="card question-card" role="group" aria-label="Вопрос">
+          <div id="q-main" class="card-main q-main"></div>
+          <div id="options" class="options" role="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Модальные окна -->
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true"></div>
+
+    <footer class="footer">Сделано ♥ для Анюты</footer>
+  </div>
+
+  <!-- Подключаем основной модуль (app.js импортирует words.js) -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
