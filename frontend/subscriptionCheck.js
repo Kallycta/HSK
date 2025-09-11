@@ -1,0 +1,450 @@
+/**
+ * Компонент для проверки подписок на каналы
+ */
+
+class SubscriptionCheck {
+  constructor() {
+    this.isChecking = false;
+    this.hasAccess = false;
+    this.requiredChannels = [];
+    this.subscriptionData = null;
+    
+    this.init();
+  }
+  
+  /**
+   * Инициализация компонента
+   */
+  init() {
+    this.createSubscriptionModal();
+    this.bindEvents();
+  }
+  
+  /**
+   * Создание модального окна для проверки подписок
+   */
+  createSubscriptionModal() {
+    const modalHTML = `
+      <div id="subscription-modal" class="subscription-modal hidden">
+        <div class="subscription-content">
+          <div class="subscription-header">
+            <h2>🔐 Проверка подписок</h2>
+            <p>Для доступа к приложению необходимо подписаться на наши каналы</p>
+          </div>
+          
+          <div id="subscription-status" class="subscription-status">
+            <div class="loading-spinner">
+              <div class="spinner"></div>
+              <p>Проверяем подписки...</p>
+            </div>
+          </div>
+          
+          <div id="channels-list" class="channels-list hidden"></div>
+          
+          <div class="subscription-actions">
+            <button id="check-subscriptions-btn" class="big-btn" disabled>
+              <span class="btn-text">Проверить подписки</span>
+              <span class="btn-spinner hidden">⏳</span>
+            </button>
+            <button id="refresh-channels-btn" class="small-btn hidden">🔄 Обновить список</button>
+          </div>
+          
+          <div class="subscription-help">
+            <details>
+              <summary>❓ Нужна помощь?</summary>
+              <div class="help-content">
+                <p><strong>Как подписаться на канал:</strong></p>
+                <ol>
+                  <li>Нажмите на ссылку канала</li>
+                  <li>Нажмите кнопку "Подписаться" или "Join"</li>
+                  <li>Вернитесь в приложение</li>
+                  <li>Нажмите "Проверить подписки"</li>
+                </ol>
+                <p><em>Подписка должна быть активной для доступа к приложению.</em></p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+  }
+  
+  /**
+   * Привязка событий
+   */
+  bindEvents() {
+    const checkBtn = document.getElementById('check-subscriptions-btn');
+    const refreshBtn = document.getElementById('refresh-channels-btn');
+    
+    if (checkBtn) {
+      checkBtn.addEventListener('click', () => this.checkSubscriptions());
+    }
+    
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => this.loadRequiredChannels());
+    }
+  }
+  
+  /**
+   * Показать модальное окно проверки подписок
+   */
+  async show() {
+    const modal = document.getElementById('subscription-modal');
+    if (!modal) return;
+    
+    modal.classList.remove('hidden');
+    document.body.classList.add('modal-open');
+    
+    // Загружаем список каналов
+    await this.loadRequiredChannels();
+    
+    // Автоматически проверяем подписки
+    setTimeout(() => {
+      this.checkSubscriptions();
+    }, 1000);
+  }
+  
+  /**
+   * Скрыть модальное окно
+   */
+  hide() {
+    const modal = document.getElementById('subscription-modal');
+    if (!modal) return;
+    
+    modal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+  
+  /**
+   * Загрузка списка обязательных каналов
+   */
+  async loadRequiredChannels() {
+    try {
+      this.showLoading('Загружаем список каналов...');
+      
+      const channels = await window.telegramApp.getRequiredChannels();
+      this.requiredChannels = channels.channels || [];
+      
+      this.renderChannelsList();
+      this.enableCheckButton();
+      
+    } catch (error) {
+      console.error('Failed to load channels:', error);
+      this.showError('Не удалось загрузить список каналов. Проверьте подключение к интернету.');
+    }
+  }
+  
+  /**
+   * Отображение списка каналов
+   */
+  renderChannelsList() {
+    const channelsList = document.getElementById('channels-list');
+    if (!channelsList || !this.requiredChannels.length) return;
+    
+    const channelsHTML = `
+      <h3>📋 Обязательные каналы:</h3>
+      <div class="channels-grid">
+        ${this.requiredChannels.map(channel => `
+          <div class="channel-item" data-channel="${channel.username}">
+            <div class="channel-info">
+              <span class="channel-name">${channel.displayName}</span>
+              <span class="channel-status" id="status-${channel.username}">❓</span>
+            </div>
+            <a href="${channel.url}" target="_blank" class="channel-link">
+              Подписаться
+            </a>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    
+    channelsList.innerHTML = channelsHTML;
+    channelsList.classList.remove('hidden');
+    
+    // Добавляем обработчики для ссылок каналов
+    this.bindChannelLinks();
+  }
+  
+  /**
+   * Привязка обработчиков для ссылок каналов
+   */
+  bindChannelLinks() {
+    const channelLinks = document.querySelectorAll('.channel-link');
+    
+    channelLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const url = link.getAttribute('href');
+        
+        // Открываем ссылку через Telegram Web App API
+        if (window.telegramApp && window.telegramApp.openLink) {
+          window.telegramApp.openLink(url);
+        } else {
+          window.open(url, '_blank');
+        }
+        
+        // Показываем подсказку
+        this.showChannelHint(link);
+      });
+    });
+  }
+  
+  /**
+   * Показать подсказку после клика на канал
+   */
+  showChannelHint(linkElement) {
+    const originalText = linkElement.textContent;
+    linkElement.textContent = '✅ Открыто';
+    linkElement.style.background = '#4CAF50';
+    
+    setTimeout(() => {
+      linkElement.textContent = originalText;
+      linkElement.style.background = '';
+    }, 2000);
+  }
+  
+  /**
+   * Проверка подписок пользователя
+   */
+  async checkSubscriptions() {
+    if (this.isChecking) return;
+    
+    this.isChecking = true;
+    this.showLoading('Проверяем ваши подписки...');
+    this.disableCheckButton();
+    
+    try {
+      const result = await window.telegramApp.checkSubscriptions();
+      this.subscriptionData = result;
+      this.hasAccess = result.hasAccess;
+      
+      if (result.hasAccess) {
+        this.showSuccess();
+        setTimeout(() => {
+          this.hide();
+          this.onAccessGranted();
+        }, 2000);
+      } else {
+        this.showSubscriptionResults(result);
+      }
+      
+    } catch (error) {
+      console.error('Subscription check failed:', error);
+      this.showError('Не удалось проверить подписки. Попробуйте еще раз.');
+    } finally {
+      this.isChecking = false;
+      this.enableCheckButton();
+    }
+  }
+  
+  /**
+   * Показать результаты проверки подписок
+   */
+  showSubscriptionResults(result) {
+    const statusDiv = document.getElementById('subscription-status');
+    if (!statusDiv) return;
+    
+    // Обновляем статусы каналов
+    this.updateChannelStatuses(result.subscriptions);
+    
+    const missingCount = result.missingChannels?.length || 0;
+    const totalCount = result.totalChannels || 0;
+    const subscribedCount = totalCount - missingCount;
+    
+    statusDiv.innerHTML = `
+      <div class="subscription-result">
+        <div class="result-icon">❌</div>
+        <h3>Доступ ограничен</h3>
+        <p>Подписано: <strong>${subscribedCount}/${totalCount}</strong> каналов</p>
+        ${missingCount > 0 ? `
+          <div class="missing-channels">
+            <p>Необходимо подписаться еще на <strong>${missingCount}</strong> канал(ов):</p>
+            <ul>
+              ${result.missingChannels.map(channel => `
+                <li>@${channel}</li>
+              `).join('')}
+            </ul>
+          </div>
+        ` : ''}
+        <p class="help-text">Подпишитесь на все каналы и нажмите "Проверить подписки" снова.</p>
+      </div>
+    `;
+  }
+  
+  /**
+   * Обновить статусы каналов в списке
+   */
+  updateChannelStatuses(subscriptions) {
+    if (!subscriptions) return;
+    
+    Object.entries(subscriptions).forEach(([channel, isSubscribed]) => {
+      const statusElement = document.getElementById(`status-${channel}`);
+      if (statusElement) {
+        statusElement.textContent = isSubscribed ? '✅' : '❌';
+        statusElement.title = isSubscribed ? 'Подписан' : 'Не подписан';
+      }
+    });
+  }
+  
+  /**
+   * Показать успешный результат
+   */
+  showSuccess() {
+    const statusDiv = document.getElementById('subscription-status');
+    if (!statusDiv) return;
+    
+    statusDiv.innerHTML = `
+      <div class="subscription-result success">
+        <div class="result-icon">✅</div>
+        <h3>Доступ разрешен!</h3>
+        <p>Вы подписаны на все обязательные каналы.</p>
+        <p class="success-text">Добро пожаловать в HSK-тренер!</p>
+      </div>
+    `;
+  }
+  
+  /**
+   * Показать состояние загрузки
+   */
+  showLoading(message) {
+    const statusDiv = document.getElementById('subscription-status');
+    if (!statusDiv) return;
+    
+    statusDiv.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>${message}</p>
+      </div>
+    `;
+  }
+  
+  /**
+   * Показать ошибку
+   */
+  showError(message) {
+    const statusDiv = document.getElementById('subscription-status');
+    if (!statusDiv) return;
+    
+    statusDiv.innerHTML = `
+      <div class="subscription-result error">
+        <div class="result-icon">❌</div>
+        <h3>Ошибка</h3>
+        <p>${message}</p>
+        <button class="small-btn" onclick="location.reload()">Перезагрузить</button>
+      </div>
+    `;
+  }
+  
+  /**
+   * Включить кнопку проверки
+   */
+  enableCheckButton() {
+    const btn = document.getElementById('check-subscriptions-btn');
+    const refreshBtn = document.getElementById('refresh-channels-btn');
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.querySelector('.btn-text').textContent = 'Проверить подписки';
+      btn.querySelector('.btn-spinner').classList.add('hidden');
+    }
+    
+    if (refreshBtn) {
+      refreshBtn.classList.remove('hidden');
+    }
+  }
+  
+  /**
+   * Отключить кнопку проверки
+   */
+  disableCheckButton() {
+    const btn = document.getElementById('check-subscriptions-btn');
+    
+    if (btn) {
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = 'Проверяем...';
+      btn.querySelector('.btn-spinner').classList.remove('hidden');
+    }
+  }
+  
+  /**
+   * Обработчик получения доступа
+   */
+  onAccessGranted() {
+    // Сохраняем статус доступа
+    localStorage.setItem('subscription_access', JSON.stringify({
+      hasAccess: true,
+      checkedAt: new Date().toISOString(),
+      userId: window.telegramApp?.getUser()?.id
+    }));
+    
+    // Уведомляем приложение о получении доступа
+    window.dispatchEvent(new CustomEvent('subscriptionAccessGranted', {
+      detail: this.subscriptionData
+    }));
+    
+    console.log('✅ Access granted to HSK trainer');
+  }
+  
+  /**
+   * Проверить, есть ли сохраненный доступ
+   */
+  checkSavedAccess() {
+    try {
+      const saved = localStorage.getItem('subscription_access');
+      if (!saved) return false;
+      
+      const data = JSON.parse(saved);
+      const currentUser = window.telegramApp?.getUser();
+      
+      // Проверяем, что доступ для текущего пользователя и не старше 1 часа
+      if (data.hasAccess && 
+          data.userId === currentUser?.id && 
+          new Date() - new Date(data.checkedAt) < 60 * 60 * 1000) {
+        this.hasAccess = true;
+        return true;
+      }
+      
+      // Удаляем устаревший доступ
+      localStorage.removeItem('subscription_access');
+      return false;
+      
+    } catch (error) {
+      console.error('Error checking saved access:', error);
+      return false;
+    }
+  }
+  
+  /**
+   * Проверить доступ (основной метод)
+   */
+  async checkAccess() {
+    // Сначала проверяем сохраненный доступ
+    if (this.checkSavedAccess()) {
+      console.log('✅ Using saved access');
+      return true;
+    }
+    
+    // Если нет сохраненного доступа, показываем модальное окно
+    await this.show();
+    return false;
+  }
+  
+  /**
+   * Получить статус доступа
+   */
+  getAccessStatus() {
+    return {
+      hasAccess: this.hasAccess,
+      subscriptionData: this.subscriptionData,
+      requiredChannels: this.requiredChannels
+    };
+  }
+}
+
+// Создаем глобальный экземпляр
+window.subscriptionCheck = new SubscriptionCheck();
+
+// Экспортируем для использования в модулях
+export default SubscriptionCheck;

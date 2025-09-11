@@ -1,0 +1,117 @@
+# ===== BACKEND (Node.js сервер) =====
+
+# Зависимости backend
+backend/node_modules/
+backend/npm-debug.log*
+backend/yarn-debug.log*
+backend/yarn-error.log*
+backend/package-lock.json
+backend/yarn.lock
+
+# Переменные окружения backend
+backend/.env
+backend/.env.local
+backend/.env.development.local
+backend/.env.test.local
+backend/.env.production.local
+
+# Логи backend
+backend/logs/
+backend/*.log
+backend/lerna-debug.log*
+
+# Сборка backend
+backend/dist/
+backend/build/
+backend/out/
+
+# Покрытие тестов backend
+backend/coverage/
+backend/.nyc_output/
+
+# ===== FRONTEND (HSK приложение) =====
+
+# Если используется сборщик для фронта
+HSK/node_modules/
+HSK/dist/
+HSK/build/
+HSK/.cache/
+
+# Временные файлы фронта
+HSK/*.tmp
+HSK/*.temp
+
+# ===== ОБЩИЕ ИСКЛЮЧЕНИЯ =====
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Системные файлы
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Временные файлы и кэш
+.cache/
+.tmp/
+.temp/
+*.tmp
+*.temp
+
+# Резервные копии
+*.bak
+*.backup
+*.old
+
+# Архивы
+*.tgz
+*.tar.gz
+*.zip
+*.rar
+
+# ===== БЕЗОПАСНОСТЬ =====
+
+# Ключи и сертификаты
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+
+# Telegram Bot токены
+bot_token.txt
+api_keys.txt
+secrets.json
+config/secrets.js
+
+# Файлы базы данных
+*.sqlite
+*.sqlite3
+*.db
+
+# ===== РАЗРАБОТКА =====
+
+# Логи разработки
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Тестирование
+coverage/
+.nyc_output/
+test-results/
+
+# Документация (автогенерируемая)
+docs/generated/
+api-docs/
