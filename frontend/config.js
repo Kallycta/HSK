@@ -5,7 +5,7 @@ const CONFIG = {
     API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
   },
   production: {
-    API_BASE_URL: 'https://hskbackend-1kyseiat.b4a.run', // Back4app URL
+    API_BASE_URL: 'https://hskbackend-rivkzvrw.b4a.run', // Back4app URL
     API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
   }
 };
