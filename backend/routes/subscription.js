@@ -13,6 +13,12 @@ const validateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'];                   // Извлекаем API ключ из заголовка запроса
   const expectedApiKey = process.env.API_KEY;                // Ожидаемый ключ из переменных окружения
   
+  // Отладочное логирование
+  console.log('🔑 API Key Debug:');
+  console.log('  Received:', apiKey ? `${apiKey.substring(0, 10)}...` : 'undefined');
+  console.log('  Expected:', expectedApiKey ? `${expectedApiKey.substring(0, 10)}...` : 'undefined');
+  console.log('  Match:', apiKey === expectedApiKey);
+  
   // Проверяем наличие ключа и его соответствие переменной окружения
   if (expectedApiKey && (!apiKey || apiKey !== expectedApiKey)) {
     return res.status(401).json({ error: 'Invalid or missing API key' }); // Возвращаем ошибку авторизации

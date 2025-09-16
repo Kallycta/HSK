@@ -80,7 +80,8 @@ const corsOptions = {
     'https://web.telegram.org',      // Официальный веб-клиент Telegram
     /\.vercel\.app$/,                // Все поддомены Vercel (для деплоя)
     'http://localhost:3000',         // Локальная разработка (бэкенд)
-    'http://localhost:5173'          // Локальная разработка (фронтенд Vite)
+    'http://localhost:5173',         // Локальная разработка (фронтенд Vite)
+    'http://localhost:8080'          // HTTP сервер для фронтенда
   ],
   
   // Разрешаем отправку cookies и заголовков авторизации между доменами

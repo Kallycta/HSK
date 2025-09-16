@@ -73,6 +73,31 @@ class TelegramBotService {
   }
 
   /**
+   * ===== ПРОВЕРКА ДОСТУПНОСТИ КАНАЛОВ =====
+   * Проверяет что бот может получить информацию о всех обязательных каналах
+   */
+  async validateChannels() {
+    if (this.requiredChannels.length === 0) {
+      console.log('📋 No required channels to validate');
+      return;
+    }
+
+    console.log('🔍 Validating channels access...');
+    
+    for (const channel of this.requiredChannels) {
+      try {
+        const channelName = channel.startsWith('@') ? channel : `@${channel}`;
+        // Пытаемся получить информацию о канале
+        await this.bot.getChat(channelName);
+        console.log(`✅ Channel ${channelName} is accessible`);
+      } catch (error) {
+        console.warn(`⚠️ Channel ${channel} may not be accessible: ${error.message}`);
+        // Не выбрасываем ошибку, просто предупреждаем
+      }
+    }
+  }
+
+  /**
    * ===== ПРОВЕРКА ПОДПИСКИ НА ОДИН КАНАЛ =====
    * Проверяет подписку пользователя на указанный канал
    * @param {number} userId - ID пользователя Telegram

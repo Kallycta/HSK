@@ -12,7 +12,7 @@ class TelegramApp {
     // Конфигурация API
     this.apiConfig = {
       baseUrl: 'http://localhost:3000/api', // Замените на URL вашего бэкенда
-      apiKey: 'test_api_key_12345' // Замените на ваш API ключ
+      apiKey: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac' // API ключ из .env
     };
     
     this.init();
