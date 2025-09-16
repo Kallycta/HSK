@@ -46,7 +46,6 @@ class SubscriptionCheck {
               <span class="btn-text">Проверить подписки</span>
               <span class="btn-spinner hidden">⏳</span>
             </button>
-            <button id="refresh-channels-btn" class="small-btn hidden">🔄 Обновить список</button>
           </div>
           
           <div class="subscription-help">
@@ -76,14 +75,9 @@ class SubscriptionCheck {
    */
   bindEvents() {
     const checkBtn = document.getElementById('check-subscriptions-btn');
-    const refreshBtn = document.getElementById('refresh-channels-btn');
     
     if (checkBtn) {
       checkBtn.addEventListener('click', () => this.checkSubscriptions());
-    }
-    
-    if (refreshBtn) {
-      refreshBtn.addEventListener('click', () => this.loadRequiredChannels());
     }
   }
   
@@ -212,7 +206,7 @@ class SubscriptionCheck {
     if (this.isChecking) return;
     
     this.isChecking = true;
-    this.showLoading('Проверяем ваши подписки...');
+    this.showCheckingStatus('Проверяем ваши подписки...');
     this.disableCheckButton();
     
     try {
@@ -222,17 +216,28 @@ class SubscriptionCheck {
       
       if (result.hasAccess) {
         this.showSuccess();
+        // Сразу закрываем модальное окно и переходим к приложению
         setTimeout(() => {
           this.hide();
           this.onAccessGranted();
-        }, 2000);
+        }, 1000);
       } else {
         this.showSubscriptionResults(result);
       }
       
     } catch (error) {
       console.error('Subscription check failed:', error);
-      this.showError('Не удалось проверить подписки. Попробуйте еще раз.');
+      
+      // Показываем более детальную ошибку
+      let errorMessage = 'Не удалось проверить подписки. Попробуйте еще раз.';
+      
+      if (error.message && error.message.includes('HTTP 400')) {
+        errorMessage = 'Ошибка данных Telegram. Перезапустите приложение.';
+      } else if (error.message && error.message.includes('HTTP 503')) {
+        errorMessage = 'Сервис временно недоступен. Попробуйте позже.';
+      }
+      
+      this.showError(errorMessage);
     } finally {
       this.isChecking = false;
       this.enableCheckButton();
@@ -244,6 +249,7 @@ class SubscriptionCheck {
    */
   showSubscriptionResults(result) {
     const statusDiv = document.getElementById('subscription-status');
+    const channelsList = document.getElementById('channels-list');
     if (!statusDiv) return;
     
     // Обновляем статусы каналов
@@ -253,6 +259,7 @@ class SubscriptionCheck {
     const totalCount = result.totalChannels || 0;
     const subscribedCount = totalCount - missingCount;
     
+    // Показываем результат над списком каналов
     statusDiv.innerHTML = `
       <div class="subscription-result">
         <div class="result-icon">❌</div>
@@ -271,6 +278,11 @@ class SubscriptionCheck {
         <p class="help-text">Подпишитесь на все каналы и нажмите "Проверить подписки" снова.</p>
       </div>
     `;
+    
+    // Убеждаемся, что список каналов остается видимым
+    if (channelsList) {
+      channelsList.classList.remove('hidden');
+    }
   }
   
   /**
@@ -293,6 +305,7 @@ class SubscriptionCheck {
    */
   showSuccess() {
     const statusDiv = document.getElementById('subscription-status');
+    const channelsList = document.getElementById('channels-list');
     if (!statusDiv) return;
     
     statusDiv.innerHTML = `
@@ -300,9 +313,14 @@ class SubscriptionCheck {
         <div class="result-icon">✅</div>
         <h3>Доступ разрешен!</h3>
         <p>Вы подписаны на все обязательные каналы.</p>
-        <p class="success-text">Добро пожаловать в HSK-тренер!</p>
+        <p class="success-text">Переходим к приложению...</p>
       </div>
     `;
+    
+    // Убеждаемся, что список каналов остается видимым
+    if (channelsList) {
+      channelsList.classList.remove('hidden');
+    }
   }
   
   /**
@@ -318,6 +336,28 @@ class SubscriptionCheck {
         <p>${message}</p>
       </div>
     `;
+  }
+  
+  /**
+   * Показать статус проверки подписок (не скрывая каналы)
+   */
+  showCheckingStatus(message) {
+    const statusDiv = document.getElementById('subscription-status');
+    const channelsList = document.getElementById('channels-list');
+    if (!statusDiv) return;
+    
+    // Очищаем предыдущие статусы и показываем только статус проверки
+    statusDiv.innerHTML = `
+      <div class="checking-status">
+        <div class="spinner"></div>
+        <p>${message}</p>
+      </div>
+    `;
+    
+    // Убеждаемся, что список каналов остается видимым
+    if (channelsList) {
+      channelsList.classList.remove('hidden');
+    }
   }
   
   /**
@@ -342,16 +382,11 @@ class SubscriptionCheck {
    */
   enableCheckButton() {
     const btn = document.getElementById('check-subscriptions-btn');
-    const refreshBtn = document.getElementById('refresh-channels-btn');
     
     if (btn) {
       btn.disabled = false;
       btn.querySelector('.btn-text').textContent = 'Проверить подписки';
       btn.querySelector('.btn-spinner').classList.add('hidden');
-    }
-    
-    if (refreshBtn) {
-      refreshBtn.classList.remove('hidden');
     }
   }
   

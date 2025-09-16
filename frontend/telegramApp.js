@@ -166,7 +166,7 @@ class TelegramApp {
       // Получаем initData для Telegram Web App
       const initData = this.tg?.initData || '';
       
-      const response = await fetch(`${this.apiConfig.baseUrl}/subscription/check`, {
+      const response = await fetch(`${this.apiConfig.baseUrl}/api/subscription/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ class TelegramApp {
    */
   async getRequiredChannels() {
     try {
-      const response = await fetch(`${this.apiConfig.baseUrl}/subscription/channels`, {
+      const response = await fetch(`${this.apiConfig.baseUrl}/api/subscription/channels`, {
         headers: {
           'x-api-key': this.apiConfig.apiKey
         }
