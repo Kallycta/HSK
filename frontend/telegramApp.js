@@ -63,6 +63,7 @@ class TelegramApp {
       ready: () => {},
       expand: () => {},
       close: () => {},
+      initData: 'user=%7B%22id%22%3A123456789%2C%22first_name%22%3A%22Test%22%2C%22last_name%22%3A%22User%22%2C%22username%22%3A%22testuser%22%2C%22language_code%22%3A%22ru%22%7D',
       initDataUnsafe: {
         user: {
           id: 123456789,
@@ -162,6 +163,9 @@ class TelegramApp {
     }
     
     try {
+      // Получаем initData для Telegram Web App
+      const initData = this.tg?.initData || '';
+      
       const response = await fetch(`${this.apiConfig.baseUrl}/subscription/check`, {
         method: 'POST',
         headers: {
@@ -169,7 +173,7 @@ class TelegramApp {
           'x-api-key': this.apiConfig.apiKey
         },
         body: JSON.stringify({
-          userId: this.user.id
+          initData: initData
         })
       });
       

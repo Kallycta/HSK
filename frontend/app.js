@@ -748,12 +748,44 @@ function showModal(message, actions){
   box.appendChild(controls); m.appendChild(box);
 }
 
+// ===== ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP =====
+// Инициализация Telegram Mini App если доступно
+function initializeTelegramWebApp() {
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    
+    // Расширяем приложение на весь экран
+    tg.expand();
+    
+    // Настраиваем цвет заголовка
+    tg.setHeaderColor('#2196F3');
+    
+    // Настраиваем главную кнопку
+    tg.MainButton.setText('Закрыть');
+    tg.MainButton.color = '#2196F3';
+    tg.MainButton.textColor = '#FFFFFF';
+    
+    // Обработчик главной кнопки
+    tg.MainButton.onClick(() => {
+      tg.close();
+    });
+    
+    // Показываем кнопку только когда нужно
+    // tg.MainButton.show();
+    
+    console.log('Telegram Web App initialized');
+  }
+}
+
 // init
 // App initialization with access control
 async function initializeApp() {
   if (appInitialized) return;
   
   dbg('Starting app initialization...');
+  
+  // Инициализируем Telegram Web App
+  initializeTelegramWebApp();
   
   try {
     // Initialize Telegram Web App
