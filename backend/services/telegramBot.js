@@ -18,7 +18,9 @@ class TelegramBotService {
     // Парсим список обязательных каналов из переменных окружения
     this.requiredChannels = process.env.REQUIRED_CHANNELS 
       ? process.env.REQUIRED_CHANNELS.split(',').map(ch => ch.trim()) // Разделяем по запятой и убираем пробелы
-      : [];  // Если не указано, то пустой массив
+      : ['hsk_channel', 'chinese_learning', 'mandarin_practice'];  // Fallback каналы для разработки
+    
+    console.log('📋 Required channels initialized:', this.requiredChannels);
     
     // Если токен есть, инициализируем бота
     if (this.token) {

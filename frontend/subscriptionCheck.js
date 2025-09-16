@@ -86,18 +86,22 @@ class SubscriptionCheck {
    */
   async show() {
     const modal = document.getElementById('subscription-modal');
-    if (!modal) return;
+    if (!modal) {
+      console.error('Subscription modal not found in DOM');
+      return;
+    }
     
+    console.log('📋 Showing subscription modal');
     modal.classList.remove('hidden');
     document.body.classList.add('modal-open');
     
     // Загружаем список каналов
+    console.log('📋 Loading required channels...');
     await this.loadRequiredChannels();
     
-    // Автоматически проверяем подписки
-    setTimeout(() => {
-      this.checkSubscriptions();
-    }, 1000);
+    // НЕ запускаем автоматическую проверку подписок
+    // Пользователь должен сначала увидеть каналы и подписаться
+    console.log('📋 Channels loaded, waiting for user action');
   }
   
   /**
@@ -116,16 +120,21 @@ class SubscriptionCheck {
    */
   async loadRequiredChannels() {
     try {
+      console.log('📋 Starting to load required channels...');
       this.showLoading('Загружаем список каналов...');
       
+      console.log('📋 Calling telegramApp.getRequiredChannels()...');
       const channels = await window.telegramApp.getRequiredChannels();
+      console.log('📋 Received channels response:', channels);
+      
       this.requiredChannels = channels.channels || [];
+      console.log('📋 Set requiredChannels:', this.requiredChannels);
       
       this.renderChannelsList();
       this.enableCheckButton();
       
     } catch (error) {
-      console.error('Failed to load channels:', error);
+      console.error('❌ Failed to load channels:', error);
       this.showError('Не удалось загрузить список каналов. Проверьте подключение к интернету.');
     }
   }
@@ -135,7 +144,22 @@ class SubscriptionCheck {
    */
   renderChannelsList() {
     const channelsList = document.getElementById('channels-list');
-    if (!channelsList || !this.requiredChannels.length) return;
+    console.log('📋 Rendering channels list:', {
+      channelsList: !!channelsList,
+      requiredChannels: this.requiredChannels,
+      channelsCount: this.requiredChannels?.length || 0
+    });
+    
+    if (!channelsList) {
+      console.error('❌ channels-list element not found in DOM');
+      return;
+    }
+    
+    if (!this.requiredChannels.length) {
+      console.warn('⚠️ No required channels to display');
+      channelsList.innerHTML = '<p>Нет обязательных каналов для подписки</p>';
+      return;
+    }
     
     const channelsHTML = `
       <h3>📋 Обязательные каналы:</h3>
@@ -154,6 +178,7 @@ class SubscriptionCheck {
       </div>
     `;
     
+    console.log('📋 Setting channels HTML:', channelsHTML.substring(0, 200) + '...');
     channelsList.innerHTML = channelsHTML;
     channelsList.classList.remove('hidden');
     
