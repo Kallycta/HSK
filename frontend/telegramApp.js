@@ -9,10 +9,10 @@ class TelegramApp {
     this.user = null;
     this.subscriptionStatus = null;
     
-    // Конфигурация API
+    // Конфигурация API из глобальной конфигурации
     this.apiConfig = {
-      baseUrl: 'http://localhost:3000/api', // Замените на URL вашего бэкенда
-      apiKey: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac' // API ключ из .env
+      baseUrl: (window.APP_CONFIG?.API_BASE_URL || 'http://localhost:3000') + '/api',
+      apiKey: window.APP_CONFIG?.API_KEY || '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
     };
     
     this.init();

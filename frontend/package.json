@@ -1,0 +1,28 @@
+{
+  "name": "hsk-telegram-miniapp-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for HSK Telegram Mini App - subscription checker",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx http-server -p 8080 --cors",
+    "build": "npm run copy-files",
+    "copy-files": "mkdir -p dist && cp *.html *.css *.js dist/",
+    "deploy": "npm run build",
+    "vercel-build": "npm run build"
+  },
+  "keywords": [
+    "telegram",
+    "miniapp",
+    "hsk",
+    "subscription",
+    "checker"
+  ],
+  "author": "HSK Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

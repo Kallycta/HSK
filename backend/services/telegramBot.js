@@ -33,10 +33,13 @@ class TelegramBotService {
    */
   initBot() {
     try {
-      // Создаем экземпляр бота без polling (не слушаем сообщения)
-      this.bot = new TelegramBot(this.token, { polling: false });
+      // Создаем экземпляр бота с polling для обработки команд
+      this.bot = new TelegramBot(this.token, { polling: true });
       console.log('✅ Telegram Bot initialized');           // Успешная инициализация
       console.log('📋 Required channels:', this.requiredChannels); // Показываем список каналов
+      
+      // Настраиваем обработчики команд
+      this.setupCommandHandlers();
     } catch (error) {
       console.error('❌ Failed to initialize Telegram Bot:', error.message); // Ошибка инициализации
     }
@@ -280,6 +283,80 @@ class TelegramBotService {
    */
   getRequiredChannels() {
     return this.requiredChannels;  // Возвращаем массив каналов
+  }
+
+  /**
+   * Настройка обработчиков команд бота
+   */
+  setupCommandHandlers() {
+    if (!this.bot) return;
+
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:8080';
+
+    // Обработчик команды /start
+    this.bot.onText(/\/start/, (msg) => {
+      const chatId = msg.chat.id;
+      const welcomeMessage = `🎯 Добро пожаловать в HSK Subscription Checker!
+
+Этот бот поможет проверить ваши подписки на необходимые каналы.
+
+📱 Нажмите кнопку "Открыть приложение" в меню или используйте команду /app`;
+      
+      this.bot.sendMessage(chatId, welcomeMessage, {
+        reply_markup: {
+          inline_keyboard: [[
+            {
+              text: '📱 Открыть приложение',
+              web_app: { url: frontendUrl }
+            }
+          ]]
+        }
+      });
+    });
+
+    // Обработчик команды /app
+    this.bot.onText(/\/app/, (msg) => {
+      const chatId = msg.chat.id;
+      
+      this.bot.sendMessage(chatId, '📱 Открываю приложение проверки подписок...', {
+        reply_markup: {
+          inline_keyboard: [[
+            {
+              text: '🚀 Запустить приложение',
+              web_app: { url: frontendUrl }
+            }
+          ]]
+        }
+      });
+    });
+
+    // Обработчик команды /help
+    this.bot.onText(/\/help/, (msg) => {
+      const chatId = msg.chat.id;
+      const helpMessage = `🆘 Помощь по использованию бота
+
+📋 Доступные команды:
+/start - Начать работу с ботом
+/app - Открыть приложение проверки подписок
+/help - Показать это сообщение
+
+❓ Как использовать:
+1. Нажмите "Открыть приложение"
+2. Приложение проверит ваши подписки
+3. Подпишитесь на необходимые каналы
+4. Получите доступ к материалам`;
+      
+      this.bot.sendMessage(chatId, helpMessage);
+    });
+
+    // Настройка команд меню
+    this.bot.setMyCommands([
+      { command: 'start', description: 'Запустить бота' },
+      { command: 'app', description: 'Открыть приложение проверки подписок' },
+      { command: 'help', description: 'Помощь' }
+    ]);
+
+    console.log('✅ Bot command handlers configured');
   }
 
   /**
