@@ -32,6 +32,7 @@ class TelegramBotService {
    * Инициализация экземпляра бота
    */
   initBot() {
+    //log
     try {
       // Создаем экземпляр бота с polling для обработки команд
       this.bot = new TelegramBot(this.token, { polling: true });
