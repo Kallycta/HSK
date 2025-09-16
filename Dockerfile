@@ -3,11 +3,11 @@ FROM node:18-alpine
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем package.json и package-lock.json из backend
-COPY backend/package*.json ./
+# Копируем package.json из backend
+COPY backend/package.json ./
 
 # Устанавливаем зависимости
-RUN npm install --only=production
+RUN npm install --omit=dev
 
 # Копируем весь код backend
 COPY backend/ ./

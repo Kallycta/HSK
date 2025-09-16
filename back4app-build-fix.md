@@ -43,21 +43,31 @@ RATE_LIMIT_MAX_REQUESTS=100
 ## 🔍 Основные изменения в Dockerfile:
 
 ```dockerfile
-# Было:
+# Было (проблемная версия):
+COPY backend/package*.json ./
 RUN npm ci --only=production
 EXPOSE 3000
 
-# Стало:
-RUN npm install --only=production
+# Стало (исправленная версия):
+COPY backend/package.json ./
+RUN npm install --omit=dev
 EXPOSE $PORT
 EXPOSE 3000
 
-# Добавлено:
+# Добавлено для безопасности:
 RUN addgroup -g 1001 -S nodejs
 RUN adduser -S nextjs -u 1001
 RUN chown -R nextjs:nodejs /app
 USER nextjs
 ```
+
+## 🚨 Ключевая проблема:
+**Back4app пытался использовать `npm ci`, но файл `package-lock.json` отсутствовал!**
+
+### Исправления:
+- ✅ Убрана попытка копирования `package-lock.json`
+- ✅ Заменена команда `npm ci` на `npm install --omit=dev`
+- ✅ Использован современный флаг `--omit=dev` вместо устаревшего `--only=production`
 
 ## 🆘 Если сборка все еще не работает:
 
