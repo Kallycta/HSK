@@ -1,5 +1,5 @@
-// Конфигурация для разных сред
-const CONFIG = {
+// Конфигурация для разных средfdf
+const CONFIG = { 
   development: {
     API_BASE_URL: 'http://localhost:3000',
     API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
