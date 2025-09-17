@@ -6,7 +6,18 @@
 
 ## 🔍 Диагностика проблемы
 
-### Шаг 1: Проверьте GitHub Actions
+### Шаг 1: Проверьте секреты GitHub
+1. Откройте ваш репозиторий на GitHub
+2. **Settings** → **Secrets and variables** → **Actions**
+3. Убедитесь, что все необходимые секреты добавлены:
+   - `YC_SA_JSON_CREDENTIALS` (JSON ключ сервисного аккаунта)
+   - `YC_FOLDER_ID` (ID каталога Yandex Cloud)
+   - `YC_SERVICE_ACCOUNT_ID` (ID сервисного аккаунта)
+   - `TELEGRAM_BOT_TOKEN` (токен Telegram бота)
+   - `API_KEY` (ваш API ключ)
+   - `REQUIRED_CHANNELS` (список каналов через запятую)
+
+### Шаг 2: Проверьте статус GitHub Actions
 
 1. Откройте ваш репозиторий на GitHub
 2. Перейдите во вкладку **"Actions"**
@@ -26,7 +37,7 @@
    Error: Missing secrets
 ```
 
-### Шаг 2: Проверьте GitHub Secrets
+### Шаг 3: Проверьте GitHub Secrets
 
 1. В репозитории: **Settings** → **Secrets and variables** → **Actions**
 2. Должны быть настроены ВСЕ секреты:
@@ -193,11 +204,38 @@ Unable to resolve action yc-actions/yc-cli-install, repository not found
 - Если используется `yandex-cloud/github-actions/yc-cli-install`, замените на `yc-actions/yc-cli-install@v2`
 - Это касается файлов `.github/workflows/deploy-*.yml`
 
-### Ошибка 5: "Telegram webhook failed"
+### Ошибка 5: "Проблемы с секретами GitHub"
+```
+Error: The secret YC_SA_JSON_CREDENTIALS was not found
+Error: Invalid service account key
+Error: Access denied
+```
+**Решение:**
+- Проверьте, что все секреты добавлены в GitHub (Settings → Secrets and variables → Actions)
+- Убедитесь, что `YC_SA_JSON_CREDENTIALS` содержит весь JSON ключ (включая фигурные скобки)
+- Проверьте права сервисного аккаунта в Yandex Cloud
+- Убедитесь, что секреты не содержат лишних пробелов или символов
+
+### Ошибка 6: "Unable to cache dependencies"
+```
+Some specified paths were not resolved, unable to cache dependencies
+```
+**Решение:**
+- Проверьте, что файл `package-lock.json` существует в указанной папке
+- Если используете только `package.json`, измените `cache-dependency-path` на `package.json`
+- Или уберите параметр `cache-dependency-path` для автоматического определения
+
+### Ошибка 7: "Telegram webhook failed"
 ```
 Error: Failed to set webhook
+Error: Request failed with status code 400
+Telegram API error
 ```
-**Решение:** Проверьте `TELEGRAM_BOT_TOKEN` и доступность API Gateway
+**Решение:**
+- Проверьте правильность TELEGRAM_BOT_TOKEN
+- Убедитесь, что бот создан через @BotFather
+- Проверьте, что бот не заблокирован
+- Проверьте доступность API Gateway
 
 ## ✅ Проверка успешного деплоя
 
