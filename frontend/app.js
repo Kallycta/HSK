@@ -748,6 +748,9 @@ function showModal(message, actions){
   box.appendChild(controls); m.appendChild(box);
 }
 
+// 
+
+
 // ===== ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP =====
 // Инициализация Telegram Mini App если доступно
 function initializeTelegramWebApp() {
