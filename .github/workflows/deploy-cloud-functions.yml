@@ -115,7 +115,7 @@ jobs:
         cache-dependency-path: functions/package-lock.json
         
     - name: 🔧 Setup Yandex Cloud CLI
-      uses: yc-actions/yc-cli-install@v1
+      uses: yandex-cloud/github-actions/yc-cli-install@v2
       with:
         yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
         
@@ -358,7 +358,7 @@ jobs:
     
     steps:
     - name: 🔧 Setup Yandex Cloud CLI
-      uses: yc-actions/yc-cli-install@v1
+      uses: yandex-cloud/github-actions/yc-cli-install@v2
       with:
         yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
         
