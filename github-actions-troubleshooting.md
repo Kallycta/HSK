@@ -225,7 +225,16 @@ Some specified paths were not resolved, unable to cache dependencies
 - Если используете только `package.json`, измените `cache-dependency-path` на `package.json`
 - Или уберите параметр `cache-dependency-path` для автоматического определения
 
-### Ошибка 7: "Telegram webhook failed"
+### Ошибка 7: "Unable to resolve action yc-actions/yc-cli-install"
+```
+Unable to resolve action yc-actions/yc-cli-install, repository not found
+```
+**Решение:** Обновите GitHub Actions workflow файлы:
+- Замените `yc-actions/yc-cli-install@v1` на `nightstory/setup-yc@v1`
+- Если используется `yandex-cloud/github-actions/yc-cli-install`, замените на `nightstory/setup-yc@v1`
+- Это касается файлов `.github/workflows/deploy-*.yml`
+
+### Ошибка 8: "Telegram webhook failed"
 ```
 Error: Failed to set webhook
 Error: Request failed with status code 400
