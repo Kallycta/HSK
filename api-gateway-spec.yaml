@@ -1,0 +1,431 @@
+openapi: 3.0.0
+info:
+  title: HSK Telegram Bot API
+  version: 1.0.0
+  description: |
+    API Gateway для HSK Telegram бота на Yandex Cloud Functions
+    
+    Основные функции:
+    - API для управления подписками на каналы
+    - Webhook для обработки сообщений Telegram
+    - Health check для мониторинга
+  contact:
+    name: HSK Bot Support
+    email: support@hskbot.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://{gateway-id}.apigw.yandexcloud.net
+    description: Yandex Cloud API Gateway
+    variables:
+      gateway-id:
+        default: your-gateway-id
+        description: ID вашего API Gateway
+
+paths:
+  /health:
+    get:
+      summary: Проверка состояния API
+      description: Endpoint для проверки работоспособности API и мониторинга
+      operationId: healthCheck
+      tags:
+        - Health
+      responses:
+        '200':
+          description: API работает нормально
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+                  service:
+                    type: string
+                    example: HSK Telegram Bot API
+                  version:
+                    type: string
+                    example: 1.0.0
+                  environment:
+                    type: string
+                    example: production
+                  runtime:
+                    type: string
+                    example: Yandex Cloud Functions
+        '500':
+          description: Внутренняя ошибка сервера
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: <API_FUNCTION_ID>
+        service_account_id: <SERVICE_ACCOUNT_ID>
+        tag: $latest
+
+  /api/subscription/channels:
+    get:
+      summary: Получить список обязательных каналов
+      description: Возвращает список каналов, на которые пользователь должен быть подписан
+      operationId: getRequiredChannels
+      tags:
+        - Subscription
+      security:
+        - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Список обязательных каналов
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  channels:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        username:
+                          type: string
+                          example: hsk_channel
+                        name:
+                          type: string
+                          example: HSK CHANNEL
+                        required:
+                          type: boolean
+                          example: true
+                  total:
+                    type: integer
+                    example: 3
+                  timestamp:
+                    type: string
+                    format: date-time
+        '401':
+          description: Неавторизованный доступ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: <API_FUNCTION_ID>
+        service_account_id: <SERVICE_ACCOUNT_ID>
+        tag: $latest
+
+  /api/subscription/check:
+    post:
+      summary: Проверить подписку пользователя
+      description: Проверяет, подписан ли пользователь на все обязательные каналы
+      operationId: checkUserSubscription
+      tags:
+        - Subscription
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  description: ID пользователя Telegram
+                  example: 123456789
+                chatId:
+                  type: integer
+                  description: ID чата (альтернатива userId)
+                  example: 123456789
+              oneOf:
+                - required: [userId]
+                - required: [chatId]
+      responses:
+        '200':
+          description: Результат проверки подписки
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  userId:
+                    type: integer
+                    example: 123456789
+                  subscriptionStatus:
+                    type: object
+                    properties:
+                      isSubscribed:
+                        type: boolean
+                        example: true
+                      channels:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            username:
+                              type: string
+                              example: hsk_channel
+                            subscribed:
+                              type: boolean
+                              example: true
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Неавторизованный доступ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: <API_FUNCTION_ID>
+        service_account_id: <SERVICE_ACCOUNT_ID>
+        tag: $latest
+
+  /api/telegram/send-message:
+    post:
+      summary: Отправить сообщение пользователю
+      description: Отправляет сообщение пользователю через Telegram бота
+      operationId: sendTelegramMessage
+      tags:
+        - Telegram
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - chatId
+                - message
+              properties:
+                chatId:
+                  type: integer
+                  description: ID чата для отправки сообщения
+                  example: 123456789
+                message:
+                  type: string
+                  description: Текст сообщения
+                  example: "Привет! Это сообщение от HSK бота."
+                parseMode:
+                  type: string
+                  description: Режим парсинга сообщения
+                  enum: [HTML, Markdown, MarkdownV2]
+                  default: HTML
+                  example: HTML
+      responses:
+        '200':
+          description: Сообщение успешно отправлено
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  messageId:
+                    type: integer
+                    example: 456
+                  chatId:
+                    type: integer
+                    example: 123456789
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Неверный запрос
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Неавторизованный доступ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: <API_FUNCTION_ID>
+        service_account_id: <SERVICE_ACCOUNT_ID>
+        tag: $latest
+
+  /webhook/telegram:
+    post:
+      summary: Telegram webhook
+      description: Endpoint для получения обновлений от Telegram Bot API
+      operationId: telegramWebhook
+      tags:
+        - Webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Telegram Update object
+              properties:
+                update_id:
+                  type: integer
+                  example: 123456789
+                message:
+                  type: object
+                  description: Новое входящее сообщение
+                callback_query:
+                  type: object
+                  description: Новый callback query
+                inline_query:
+                  type: object
+                  description: Новый inline query
+      responses:
+        '200':
+          description: Webhook успешно обработан
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  processingTime:
+                    type: integer
+                    description: Время обработки в миллисекундах
+                    example: 150
+                  timestamp:
+                    type: string
+                    format: date-time
+        '400':
+          description: Неверный формат webhook
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Invalid webhook payload
+        '408':
+          description: Таймаут обработки
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Request timeout
+        '500':
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: Internal server error
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: <TELEGRAM_WEBHOOK_FUNCTION_ID>
+        service_account_id: <SERVICE_ACCOUNT_ID>
+        tag: $latest
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API ключ для доступа к защищенным endpoints
+
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: Internal server error
+        message:
+          type: string
+          example: Something went wrong
+        timestamp:
+          type: string
+          format: date-time
+      required:
+        - success
+        - error
+
+tags:
+  - name: Health
+    description: Endpoints для проверки состояния API
+  - name: Subscription
+    description: Управление подписками на каналы
+  - name: Telegram
+    description: Взаимодействие с Telegram Bot API
+  - name: Webhook
+    description: Обработка webhook от внешних сервисов
+
+# Настройки CORS для всех endpoints
+x-yc-apigateway-cors:
+  origin: '*'
+  methods: 'GET,POST,PUT,DELETE,OPTIONS'
+  headers: 'Origin,X-Requested-With,Content-Type,Accept,x-api-key,Authorization'
+  credentials: false
+
+# Настройки rate limiting
+x-yc-apigateway-rate-limit:
+  all_requests:
+    per_second: 100
+    burst: 200
+  per_ip:
+    per_second: 10
+    burst: 20

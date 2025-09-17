@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  hsk-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: hsk-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - FRONTEND_URL=${FRONTEND_URL}
+      - API_KEY=${API_KEY}
+      - REQUIRED_CHANNELS=${REQUIRED_CHANNELS}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - hsk-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx для проксирования и SSL терминации
+  nginx:
+    image: nginx:alpine
+    container_name: hsk-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - hsk-backend
+    networks:
+      - hsk-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Watchtower для автоматического обновления контейнеров
+  watchtower:
+    image: containrrr/watchtower
+    container_name: hsk-watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=300
+      - WATCHTOWER_INCLUDE_STOPPED=true
+    networks:
+      - hsk-network
+
+networks:
+  hsk-network:
+    driver: bridge
+
+volumes:
+  nginx_ssl:
+    driver: local

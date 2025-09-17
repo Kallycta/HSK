@@ -1,0 +1,57 @@
+{
+  "name": "hsk-cloud-functions",
+  "version": "1.0.0",
+  "description": "HSK Telegram Bot Cloud Functions for Yandex Cloud",
+  "main": "api-handler.js",
+  "scripts": {
+    "start": "node api-handler.js",
+    "test": "node telegram-webhook.js",
+    "dev": "nodemon api-handler.js",
+    "lint": "eslint *.js",
+    "prepare": "npm ci --only=production",
+    "build": "zip -r ../functions.zip . -x 'node_modules/.cache/*' '*.log' '.git/*' 'test/*'"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "hsk",
+    "chinese",
+    "yandex-cloud",
+    "serverless",
+    "cloud-functions"
+  ],
+  "author": "HSK Bot Team",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "serverless-http": "^3.2.0",
+    "node-telegram-bot-api": "^0.61.0",
+    "axios": "^1.6.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "eslint": "^8.50.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/hsk-telegram-bot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/hsk-telegram-bot/issues"
+  },
+  "homepage": "https://github.com/your-username/hsk-telegram-bot#readme",
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}
