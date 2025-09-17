@@ -229,9 +229,50 @@ Some specified paths were not resolved, unable to cache dependencies
 ```
 Unable to resolve action yc-actions/yc-cli-install, repository not found
 ```
-**Решение:** Обновите GitHub Actions workflow файлы:
+
+**Причины:**
+- Репозиторий `yc-actions/yc-cli-install` не существует или был удален
+- Указана неверная версия действия
+- Проблемы с доступом к GitHub Marketplace
+
+**Рекомендуемые решения с официальными yc-actions:**
+
+1. **Для аутентификации в Container Registry:**
+   ```yaml
+   - name: Login to Yandex Cloud Container Registry
+     uses: yc-actions/yc-cr-login@v1
+     with:
+       yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+   ```
+
+2. **Для развертывания Container Optimized Image (COI):**
+   ```yaml
+   - name: Deploy COI VM
+     uses: yc-actions/yc-coi-deploy@v2
+     with:
+       yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+       folder-id: ${{ secrets.YC_FOLDER_ID }}
+       vm-name: your-vm-name
+   ```
+
+3. **Установка CLI через официальный скрипт (универсальное решение):**
+   ```yaml
+   - name: Setup Yandex Cloud CLI
+     run: |
+       curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+       echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
+       
+   - name: Configure Yandex Cloud CLI
+     run: |
+       echo '${{ secrets.YC_SA_JSON_CREDENTIALS }}' > key.json
+       yc config profile create sa-profile
+       yc config set service-account-key key.json
+       yc config set folder-id ${{ secrets.YC_FOLDER_ID }}
+       rm key.json
+   ```
+
+**Альтернативное решение (не рекомендуется для продакшена):**
 - Замените `yc-actions/yc-cli-install@v1` на `nightstory/setup-yc@v1`
-- Если используется `yandex-cloud/github-actions/yc-cli-install`, замените на `nightstory/setup-yc@v1`
 - Это касается файлов `.github/workflows/deploy-*.yml`
 
 ### Ошибка 8: "Telegram webhook failed"
