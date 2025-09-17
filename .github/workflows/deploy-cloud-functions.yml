@@ -58,7 +58,7 @@ jobs:
     - name: 📦 Install dependencies
       run: |
         cd functions
-        npm ci
+        npm install
         
     - name: 🔍 Lint code
       run: |
@@ -130,7 +130,7 @@ jobs:
     - name: 📦 Install production dependencies
       run: |
         cd functions
-        npm ci --only=production --silent
+        npm install --only=production --silent
         
         # Очищаем кэш npm для уменьшения размера
         npm cache clean --force
