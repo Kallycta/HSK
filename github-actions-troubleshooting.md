@@ -189,7 +189,8 @@ Error: Service account has no permission
 Unable to resolve action yc-actions/yc-cli-install, repository not found
 ```
 **Решение:** Обновите GitHub Actions workflow файлы:
-- Замените `yc-actions/yc-cli-install@v1` на `yandex-cloud/github-actions/yc-cli-install@v2`
+- Замените `yc-actions/yc-cli-install@v1` на `yc-actions/yc-cli-install@v2`
+- Если используется `yandex-cloud/github-actions/yc-cli-install`, замените на `yc-actions/yc-cli-install@v2`
 - Это касается файлов `.github/workflows/deploy-*.yml`
 
 ### Ошибка 5: "Telegram webhook failed"

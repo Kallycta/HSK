@@ -27,7 +27,7 @@ jobs:
       uses: actions/checkout@v4
       
     - name: 🔧 Setup Yandex Cloud CLI
-      uses: yandex-cloud/github-actions/yc-cli-install@v2
+      uses: yc-actions/yc-cli-install@v2
       with:
         yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
         
@@ -212,7 +212,7 @@ jobs:
     
     steps:
     - name: 🧹 Cleanup old images
-      uses: yandex-cloud/github-actions/yc-cli-install@v2
+      uses: yc-actions/yc-cli-install@v2
       with:
         yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
         
