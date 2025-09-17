@@ -45,6 +45,10 @@ jobs:
     - name: 🏷️ Generate image tag
       id: image_tag
       run: |
+        if [ -z "${{ secrets.YC_REGISTRY_ID }}" ]; then
+          echo "Error: YC_REGISTRY_ID secret is not set"
+          exit 1
+        fi
         echo "IMAGE_TAG_FULL=${IMAGE_TAG}:${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
         echo "IMAGE_TAG_LATEST=${IMAGE_TAG}:latest" >> $GITHUB_OUTPUT
         
