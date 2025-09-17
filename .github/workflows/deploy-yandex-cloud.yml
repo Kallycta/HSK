@@ -35,7 +35,7 @@ jobs:
       run: |
         curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
         echo "$HOME/yandex-cloud/bin" >> $GITHUB_PATH
-        source ~/.bashrc
+        export PATH="$HOME/yandex-cloud/bin:$PATH"
         echo '${{ secrets.YC_SA_JSON_CREDENTIALS }}' > key.json
         yc config profile create sa-profile
         yc config set service-account-key key.json
