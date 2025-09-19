@@ -41,11 +41,64 @@ class SubscriptionCheck {
           
           <div id="channels-list" class="channels-list hidden"></div>
           
-
-          
+          <div class="subscription-actions">
+            <button id="check-subscription-btn" class="btn btn-primary" onclick="window.subscriptionCheck.checkSubscriptions()">
+              <span class="btn-spinner hidden"></span>
+              <span class="btn-text">Проверить подписку</span>
+            </button>
+            
+            <button id="open-app-btn" class="btn btn-success hidden" onclick="window.subscriptionCheck.openApp()">
+              Открыть приложение
+            </button>
+          </div>
 
         </div>
       </div>
+      <style>
+        .subscription-actions {
+          margin-top: 20px;
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+        }
+        
+        .subscription-actions button {
+          padding: 12px 24px;
+          border: none;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        #check-subscription-btn {
+          background: #007bff;
+          color: white;
+        }
+        
+        #check-subscription-btn:hover:not(:disabled) {
+          background: #0056b3;
+        }
+        
+        #check-subscription-btn:disabled {
+          background: #6c757d;
+          cursor: not-allowed;
+        }
+        
+        #open-app-btn {
+          background: #28a745;
+          color: white;
+        }
+        
+        #open-app-btn:hover {
+          background: #1e7e34;
+        }
+        
+        .hidden {
+          display: none !important;
+        }
+      </style>
     `;
     
     document.body.insertAdjacentHTML('beforeend', modalHTML);
@@ -55,8 +108,33 @@ class SubscriptionCheck {
    * Привязка событий
    */
   bindEvents() {
-    // Больше не нужно привязывать события для кнопки проверки
-    // Проверка будет происходить автоматически
+    // Закрытие модального окна
+    const closeBtn = document.querySelector('.close-btn');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => this.hide());
+    }
+    
+    // Закрытие по клику на фон
+    const modal = document.getElementById('subscription-modal');
+    if (modal) {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.hide();
+        }
+      });
+    }
+    
+    // Кнопка проверки подписки
+    const checkBtn = document.getElementById('check-subscription-btn');
+    if (checkBtn) {
+      checkBtn.addEventListener('click', () => this.checkSubscriptions());
+    }
+    
+    // Кнопка открытия приложения
+    const openAppBtn = document.getElementById('open-app-btn');
+    if (openAppBtn) {
+      openAppBtn.addEventListener('click', () => this.openApp());
+    }
   }
   
   /**
@@ -77,9 +155,9 @@ class SubscriptionCheck {
     console.log('📋 Loading required channels...');
     await this.loadRequiredChannels();
     
-    // НЕ запускаем автоматическую проверку подписок
-    // Пользователь должен сначала увидеть каналы и подписаться
-    console.log('📋 Channels loaded, waiting for user action');
+    // Автоматически проверяем подписки при первой загрузке
+    console.log('📋 Starting automatic subscription check...');
+    await this.checkSubscriptions();
   }
   
   /**
@@ -213,6 +291,7 @@ class SubscriptionCheck {
     if (this.isChecking) return;
     
     this.isChecking = true;
+    this.updateCheckButton(true);
     this.showCheckingStatus('Проверяем ваши подписки...');
     
     try {
@@ -222,11 +301,6 @@ class SubscriptionCheck {
       
       if (result.hasAccess) {
         this.showSuccess();
-        // Сразу закрываем модальное окно и переходим к приложению
-        setTimeout(() => {
-          this.hide();
-          this.onAccessGranted();
-        }, 1000);
       } else {
         this.showSubscriptionResults(result);
       }
@@ -246,6 +320,7 @@ class SubscriptionCheck {
       this.showError(errorMessage);
     } finally {
       this.isChecking = false;
+      this.updateCheckButton(false);
     }
   }
   
@@ -255,6 +330,7 @@ class SubscriptionCheck {
   showSubscriptionResults(result) {
     const statusDiv = document.getElementById('subscription-status');
     const channelsList = document.getElementById('channels-list');
+    const openAppBtn = document.getElementById('open-app-btn');
     if (!statusDiv) return;
     
     // Обновляем статусы каналов
@@ -268,7 +344,7 @@ class SubscriptionCheck {
     statusDiv.innerHTML = `
       <div class="subscription-result">
         <div class="result-icon">❌</div>
-        <h3>Доступ ограничен</h3>
+        <h3>Вы не подписаны на все необходимые каналы</h3>
         <p>Подписано: <strong>${subscribedCount}/${totalCount}</strong> каналов</p>
         ${missingCount > 0 ? `
           <div class="missing-channels">
@@ -280,9 +356,14 @@ class SubscriptionCheck {
             </ul>
           </div>
         ` : ''}
-        <p class="help-text">Подпишитесь на все каналы. Проверка произойдет автоматически.</p>
+        <p class="help-text">Подпишитесь на все каналы и нажмите "Проверить подписку".</p>
       </div>
     `;
+    
+    // Скрываем кнопку "Открыть приложение"
+    if (openAppBtn) {
+      openAppBtn.classList.add('hidden');
+    }
     
     // Убеждаемся, что список каналов остается видимым
     if (channelsList) {
@@ -311,16 +392,21 @@ class SubscriptionCheck {
   showSuccess() {
     const statusDiv = document.getElementById('subscription-status');
     const channelsList = document.getElementById('channels-list');
+    const openAppBtn = document.getElementById('open-app-btn');
     if (!statusDiv) return;
     
     statusDiv.innerHTML = `
       <div class="subscription-result success">
         <div class="result-icon">✅</div>
-        <h3>Доступ разрешен!</h3>
-        <p>Вы подписаны на все обязательные каналы.</p>
-        <p class="success-text">Переходим к приложению...</p>
+        <h3>Вы подписаны на все необходимые каналы</h3>
+        <p class="success-text">Отлично! Теперь вы можете пользоваться приложением.</p>
       </div>
     `;
+    
+    // Показываем кнопку "Открыть приложение"
+    if (openAppBtn) {
+      openAppBtn.classList.remove('hidden');
+    }
     
     // Убеждаемся, что список каналов остается видимым
     if (channelsList) {
@@ -392,8 +478,26 @@ class SubscriptionCheck {
     `;
   }
   
+  /**
+   * Обновить состояние кнопки проверки
+   */
+  updateCheckButton(isChecking) {
+    const checkBtn = document.getElementById('check-subscription-btn');
+    if (checkBtn) {
+      checkBtn.disabled = isChecking;
+      checkBtn.textContent = isChecking ? 'Проверяем...' : 'Проверить подписку';
+    }
+  }
 
-  
+  /**
+   * Открыть приложение
+   */
+  openApp() {
+    console.log('Opening app...');
+    this.hide();
+    this.onAccessGranted();
+  }
+
   /**
    * Обработчик получения доступа
    */

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Проверка подписки на каналы</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .status-container {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .status-message {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .status-icon {
+            font-size: 24px;
+        }
+
+        .subscribed {
+            color: #28a745;
+        }
+
+        .not-subscribed {
+            color: #dc3545;
+        }
+
+        .loading {
+            color: #6c757d;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            min-width: 180px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-details {
+            font-size: 14px;
+            color: #6c757d;
+            margin-top: 10px;
+        }
+
+        .channels-info {
+            background: #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Проверка подписки</h1>
+        
+        <div class="status-container" id="statusContainer">
+            <div class="status-message loading" id="statusMessage">
+                <span class="spinner"></span>
+                Проверяем подписку...
+            </div>
+            <div class="status-details" id="statusDetails">
+                Пожалуйста, подождите
+            </div>
+        </div>
+
+        <div class="channels-info">
+            <strong>Необходимые каналы:</strong><br>
+            • Канал 1: @example_channel_1<br>
+            • Канал 2: @example_channel_2<br>
+            • Канал 3: @example_channel_3
+        </div>
+
+        <div style="margin-top: 30px;">
+            <button class="btn" id="checkBtn" onclick="checkSubscription()" disabled>
+                <span class="spinner hidden" id="checkSpinner"></span>
+                <span id="checkBtnText">Проверить подписку</span>
+            </button>
+            
+            <button class="btn btn-success hidden" id="openAppBtn" onclick="openApp()">
+                Открыть приложение
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Mock функция для проверки подписки (случайный результат)
+        function mockCheckSubscription() {
+            return new Promise((resolve) => {
+                // Имитируем задержку API запроса
+                setTimeout(() => {
+                    // Случайно возвращаем true или false
+                    const isSubscribed = Math.random() > 0.5;
+                    resolve({
+                        subscribed: isSubscribed,
+                        channels: [
+                            { name: '@example_channel_1', subscribed: isSubscribed || Math.random() > 0.3 },
+                            { name: '@example_channel_2', subscribed: isSubscribed || Math.random() > 0.3 },
+                            { name: '@example_channel_3', subscribed: isSubscribed || Math.random() > 0.3 }
+                        ]
+                    });
+                }, 1000 + Math.random() * 2000); // 1-3 секунды
+            });
+        }
+
+        // Обновление интерфейса на основе статуса подписки
+        function updateUI(result) {
+            const statusMessage = document.getElementById('statusMessage');
+            const statusDetails = document.getElementById('statusDetails');
+            const statusContainer = document.getElementById('statusContainer');
+            const openAppBtn = document.getElementById('openAppBtn');
+            const checkBtn = document.getElementById('checkBtn');
+
+            statusContainer.classList.add('fade-in');
+
+            if (result.subscribed) {
+                statusMessage.innerHTML = '<span class="status-icon">✅</span>Вы подписаны на все необходимые каналы';
+                statusMessage.className = 'status-message subscribed';
+                statusDetails.textContent = 'Отлично! Теперь вы можете пользоваться приложением.';
+                openAppBtn.classList.remove('hidden');
+            } else {
+                statusMessage.innerHTML = '<span class="status-icon">❌</span>Вы не подписаны на все необходимые каналы';
+                statusMessage.className = 'status-message not-subscribed';
+                
+                const unsubscribedChannels = result.channels
+                    .filter(channel => !channel.subscribed)
+                    .map(channel => channel.name)
+                    .join(', ');
+                
+                statusDetails.innerHTML = `Необходимо подписаться на: <strong>${unsubscribedChannels}</strong>`;
+                openAppBtn.classList.add('hidden');
+            }
+
+            checkBtn.disabled = false;
+        }
+
+        // Функция проверки подписки
+        async function checkSubscription() {
+            const statusMessage = document.getElementById('statusMessage');
+            const statusDetails = document.getElementById('statusDetails');
+            const checkBtn = document.getElementById('checkBtn');
+            const checkSpinner = document.getElementById('checkSpinner');
+            const checkBtnText = document.getElementById('checkBtnText');
+            const openAppBtn = document.getElementById('openAppBtn');
+
+            // Показываем состояние загрузки
+            statusMessage.innerHTML = '<span class="spinner"></span>Проверяем подписку...';
+            statusMessage.className = 'status-message loading';
+            statusDetails.textContent = 'Пожалуйста, подождите';
+            
+            checkBtn.disabled = true;
+            checkSpinner.classList.remove('hidden');
+            checkBtnText.textContent = 'Проверяем...';
+            openAppBtn.classList.add('hidden');
+
+            try {
+                const result = await mockCheckSubscription();
+                updateUI(result);
+            } catch (error) {
+                statusMessage.innerHTML = '<span class="status-icon">⚠️</span>Ошибка при проверке подписки';
+                statusMessage.className = 'status-message not-subscribed';
+                statusDetails.textContent = 'Попробуйте еще раз через несколько секунд.';
+                checkBtn.disabled = false;
+            } finally {
+                checkSpinner.classList.add('hidden');
+                checkBtnText.textContent = 'Проверить подписку';
+            }
+        }
+
+        // Функция открытия приложения
+        function openApp() {
+            alert('Переход в приложение! 🎉\n\nВ реальном приложении здесь будет переход на главную страницу.');
+            // В реальном приложении здесь будет:
+            // window.location.href = '/app' или аналогичный переход
+        }
+
+        // Автоматическая проверка при загрузке страницы
+        window.addEventListener('load', () => {
+            setTimeout(checkSubscription, 500); // Небольшая задержка для плавности
+        });
+    </script>
+</body>
+</html>
