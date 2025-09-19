@@ -188,7 +188,13 @@ class TelegramApp {
       // Получаем initData для Telegram Web App
       const initData = this.tg?.initData || '';
       
-      const response = await fetch(`${this.apiConfig.baseUrl}/api/subscription/check`, {
+      console.log('🔍 Checking subscriptions...', {
+        apiUrl: `${this.apiConfig.baseUrl}/subscription/check`,
+        hasInitData: !!initData,
+        userAgent: navigator.userAgent
+      });
+      
+      const response = await fetch(`${this.apiConfig.baseUrl}/subscription/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -200,6 +206,13 @@ class TelegramApp {
       });
       
       if (!response.ok) {
+        const errorText = await response.text().catch(() => 'Unknown error');
+        console.error('❌ API Response Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText,
+          url: response.url
+        });
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
       
@@ -211,6 +224,35 @@ class TelegramApp {
       
     } catch (error) {
       console.error('❌ Failed to check subscriptions:', error);
+      
+      // Детальное логирование ошибки
+      if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+        console.error('🌐 Network Error Details:', {
+          message: 'Cannot connect to API server',
+          possibleCauses: [
+            'Backend server is not running',
+            'CORS policy blocking request',
+            'Network connectivity issues',
+            'Incorrect API URL'
+          ],
+          currentConfig: this.apiConfig
+        });
+      }
+      
+      // Возвращаем fallback результат для разработки
+      if (window.location.hostname === 'localhost') {
+        console.warn('🔧 Development mode: Using fallback subscription result');
+        const fallbackResult = {
+          hasAccess: false,
+          missingChannels: ['rust_live_13'],
+          message: 'API недоступен (режим разработки)',
+          error: true,
+          fallback: true
+        };
+        this.subscriptionStatus = fallbackResult;
+        return fallbackResult;
+      }
+      
       throw error;
     }
   }
@@ -221,7 +263,7 @@ class TelegramApp {
    */
   async getRequiredChannels() {
     try {
-      const response = await fetch(`${this.apiConfig.baseUrl}/api/subscription/channels`, {
+      const response = await fetch(`${this.apiConfig.baseUrl}/subscription/channels`, {
         headers: {
           'x-api-key': this.apiConfig.apiKey
         }
