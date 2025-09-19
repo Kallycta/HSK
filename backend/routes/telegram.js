@@ -6,6 +6,8 @@ const router = express.Router();                             // Создаем �
 /**
  * ===== MIDDLEWARE ДЛЯ БЕЗОПАСНОСТИ =====
  * Middleware для проверки API ключа
+ *  * Middleware для проверки API ключа
+ *  * Middleware для проверки API ключа
  */
 const validateApiKey = (req, res, next) => {
   const apiKey = req.headers['x-api-key'];    // Получаем API ключ из заголовков
