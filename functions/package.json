@@ -8,7 +8,7 @@
     "test": "node telegram-webhook.js",
     "dev": "nodemon api-handler.js",
     "lint": "eslint *.js",
-    "prepare": "npm ci --only=production",
+
     "build": "zip -r ../functions.zip . -x 'node_modules/.cache/*' '*.log' '.git/*' 'test/*'"
   },
   "keywords": [

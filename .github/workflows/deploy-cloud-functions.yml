@@ -128,9 +128,14 @@ jobs:
         rm key.json
         
     - name: 📦 Install production dependencies
+      timeout-minutes: 10
       run: |
         cd functions
-        npm install --only=production --silent
+        # Устанавливаем только production зависимости с оптимизацией
+        npm ci --only=production --silent --prefer-offline || npm install --only=production --silent --prefer-offline
+        
+        # Проверяем что установились только нужные пакеты
+        ls -la node_modules/ | head -10
         
         # Очищаем кэш npm для уменьшения размера
         npm cache clean --force
