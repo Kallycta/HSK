@@ -37,6 +37,7 @@ class TelegramBotService {
     //log
     try {
       // Создаем экземпляр бота с polling для обработки команд
+       // Создаем экземпляр бота с polling для обработки команд
       this.bot = new TelegramBot(this.token, { polling: true });
       console.log('✅ Telegram Bot initialized');           // Успешная инициализация
       console.log('📋 Required channels:', this.requiredChannels); // Показываем список каналов

@@ -5,7 +5,8 @@ const CONFIG = {
     API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
   },
   production: {
-    API_BASE_URL: 'https://hskbackend-rivkzvrw.b4a.run', // Back4app URL
+    // Yandex Cloud API Gateway URL (будет обновлен после развертывания)
+    API_BASE_URL: 'https://your-gateway-domain.apigw.yandexcloud.net',
     API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
   }
 };
