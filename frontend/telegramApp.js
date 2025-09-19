@@ -264,7 +264,7 @@ class TelegramApp {
    */
   async getRequiredChannels() {
     try {
-      const response = await fetch(`${this.apiConfig.baseUrl}/subscription/channels`, {
+      const response = await fetch(`${this.apiConfig.baseUrl}/api/subscription/channels`, {
         headers: {
           'x-api-key': this.apiConfig.apiKey
         }
