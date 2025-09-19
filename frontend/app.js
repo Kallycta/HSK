@@ -748,7 +748,10 @@ function showModal(message, actions){
   box.appendChild(controls); m.appendChild(box);
 }
 
-// 
+//    
+
+
+
 
 
 // ===== ИНИЦИАЛИЗАЦИЯ TELEGRAM WEB APP =====
