@@ -131,43 +131,88 @@ jobs:
       timeout-minutes: 10
       run: |
         cd functions
-        # Устанавливаем только production зависимости с оптимизацией
-        npm ci --only=production --silent --prefer-offline || npm install --only=production --silent --prefer-offline
         
-        # Проверяем что установились только нужные пакеты
-        ls -la node_modules/ | head -10
+        # Удаляем существующие node_modules для чистой установки
+        rm -rf node_modules/
         
-        # Очищаем кэш npm для уменьшения размера
+        # Устанавливаем только production зависимости
+        npm ci --only=production --silent --no-audit --no-fund
+        
+        # Удаляем все dev зависимости и кэш
+        npm prune --production
         npm cache clean --force
         
-        # Удаляем dev зависимости если они есть
-        rm -rf node_modules/.cache
+        # Удаляем ненужные файлы из node_modules
+        find node_modules/ -name "*.md" -delete
+        find node_modules/ -name "*.txt" -delete
+        find node_modules/ -name "CHANGELOG*" -delete 2>/dev/null || true
+        find node_modules/ -name "LICENSE*" -delete 2>/dev/null || true
+        find node_modules/ -name "HISTORY*" -delete 2>/dev/null || true
+        find node_modules/ -name "*.d.ts" -delete 2>/dev/null || true
+        find node_modules/ -name "*.map" -delete 2>/dev/null || true
+        find node_modules/ -name "*.min.js.map" -delete 2>/dev/null || true
+        find node_modules/ -name "CONTRIBUTORS*" -delete 2>/dev/null || true
+        find node_modules/ -name "AUTHORS*" -delete 2>/dev/null || true
+        find node_modules/ -name "MAINTAINERS*" -delete 2>/dev/null || true
+        find node_modules/ -name "*.test.js" -delete
+        find node_modules/ -name "*.spec.js" -delete
+        
+        # Удаляем ненужные директории
+        find node_modules/ -name "test" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "tests" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "example" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "examples" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "docs" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "doc" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "coverage" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "benchmark" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "perf" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "demo" -type d -exec rm -rf {} + 2>/dev/null || true
+        find node_modules/ -name "sample" -type d -exec rm -rf {} + 2>/dev/null || true
+        rm -rf node_modules/.cache/
+        rm -rf node_modules/.bin/
+        
+        # Проверяем размер node_modules
+        NODE_MODULES_SIZE=$(du -sm node_modules/ | cut -f1)
+        echo "📦 node_modules size: ${NODE_MODULES_SIZE} MB"
         
     - name: 🗜️ Create deployment package
       run: |
         cd functions
         
-        # Создаем архив с исключением ненужных файлов
+        # Создаем архив с исключением ненужных файлов (используем .yandexignore)
         zip -r ../functions.zip . \
           -x "node_modules/.cache/*" \
+             "node_modules/.bin/*" \
              "*.log" \
              "test/*" \
+             "tests/*" \
              "*.test.js" \
              "*.spec.js" \
              ".git/*" \
-             "README.md"
+             "README.md" \
+             "*.md" \
+             "package-lock.json"
         
         # Проверяем размер архива
         ARCHIVE_SIZE=$(stat -c%s "../functions.zip")
-        ARCHIVE_SIZE_MB=$((ARCHIVE_SIZE / 1024 / 1024))
+        ARCHIVE_SIZE_MB=$(echo "scale=2; $ARCHIVE_SIZE / 1024 / 1024" | bc)
         
         echo "📦 Archive size: ${ARCHIVE_SIZE_MB} MB"
         
-        if [ $ARCHIVE_SIZE_MB -gt 128 ]; then
-          echo "⚠️ Warning: Archive size exceeds 128 MB limit"
+        # Yandex Cloud Functions лимит: 3.5 MB
+        if (( $(echo "$ARCHIVE_SIZE_MB > 3.5" | bc -l) )); then
+          echo "❌ ERROR: Archive size ${ARCHIVE_SIZE_MB} MB exceeds Yandex Cloud Functions limit of 3.5 MB"
+          echo "💡 Try optimizing dependencies or use Object Storage for larger functions"
+          
+          # Показываем самые большие файлы в архиве
+          echo "📊 Largest files in archive:"
+          unzip -l ../functions.zip | sort -k1 -nr | head -10
+          
           exit 1
         fi
         
+        echo "✅ Archive size is within 3.5 MB limit"
         echo "archive_size=${ARCHIVE_SIZE_MB}" >> $GITHUB_OUTPUT
         
     - name: 🚀 Deploy API Function

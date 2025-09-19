@@ -11,11 +11,11 @@
 **⏰ Время распространения изменений: до 15 минут**
 
 ```bash
-# Проверка текущих назначений ролей в проекте
-yc iam access-binding list --id <ID_проекта>
+# Проверка ролей для проекта
+yc resource-manager folder list-access-bindings --id <ID_проекта>
 
-# Проверка ролей сервисного аккаунта
-yc iam service-account list-access-bindings <SERVICE_ACCOUNT_ID>
+# Проверка ролей для сервисного аккаунта
+yc iam service-account list-access-bindings --id <ID_сервисного_аккаунта>
 
 # Проверка статуса сервисного аккаунта
 yc iam service-account get <SERVICE_ACCOUNT_ID>
