@@ -44,7 +44,9 @@ class TelegramApp {
         console.log('✅ Telegram user:', this.user);
         this.isInitialized = true;
       } else {
-        console.warn('⚠️ No user data available');
+        console.warn('⚠️ No user data available, creating mock user for development');
+        // Если нет данных пользователя, создаем mock для разработки
+        this.createMockTelegram();
       }
       
       // Настраиваем обработчики событий
@@ -52,6 +54,8 @@ class TelegramApp {
       
     } catch (error) {
       console.error('❌ Failed to initialize Telegram Web App:', error);
+      // В случае ошибки также создаем mock для разработки
+      this.createMockTelegram();
     }
   }
   
@@ -143,14 +147,32 @@ class TelegramApp {
    * Настройка обработчиков событий
    */
   setupEventHandlers() {
-    // Обработчик закрытия приложения
-    this.tg.onEvent('mainButtonClicked', () => {
-      console.log('Main button clicked');
-    });
+    if (!this.tg) return;
     
-    this.tg.onEvent('backButtonClicked', () => {
-      console.log('Back button clicked');
-    });
+    // Обработчик главной кнопки
+    if (this.tg.MainButton && this.tg.MainButton.onClick) {
+      this.tg.MainButton.onClick(() => {
+        console.log('Main button clicked');
+      });
+    }
+    
+    // Обработчик кнопки назад
+    if (this.tg.BackButton && this.tg.BackButton.onClick) {
+      this.tg.BackButton.onClick(() => {
+        console.log('Back button clicked');
+      });
+    }
+    
+    // Обработчик событий (если доступен)
+    if (this.tg.onEvent) {
+      this.tg.onEvent('mainButtonClicked', () => {
+        console.log('Main button clicked via onEvent');
+      });
+      
+      this.tg.onEvent('backButtonClicked', () => {
+        console.log('Back button clicked via onEvent');
+      });
+    }
   }
   
   /**
