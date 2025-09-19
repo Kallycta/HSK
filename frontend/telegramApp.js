@@ -189,12 +189,12 @@ class TelegramApp {
       const initData = this.tg?.initData || '';
       
       console.log('🔍 Checking subscriptions...', {
-        apiUrl: `${this.apiConfig.baseUrl}/subscription/check`,
+        apiUrl: `${this.apiConfig.baseUrl}/api/subscription/check`,
         hasInitData: !!initData,
         userAgent: navigator.userAgent
       });
       
-      const response = await fetch(`${this.apiConfig.baseUrl}/subscription/check`, {
+      const response = await fetch(`${this.apiConfig.baseUrl}/api/subscription/check`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
