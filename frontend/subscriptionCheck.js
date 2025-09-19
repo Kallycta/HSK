@@ -165,12 +165,11 @@ class SubscriptionCheck {
       <h3>📋 Обязательные каналы:</h3>
       <div class="channels-grid">
         ${this.requiredChannels.map(channel => `
-          <div class="channel-item" data-channel="${channel.username}">
-            <div class="channel-info">
-              <span class="channel-name">${channel.displayName}</span>
-              <span class="channel-status" id="status-${channel.username}">❓</span>
-            </div>
-            <a href="${channel.url}" target="_blank" class="channel-link">
+          <div class="channel-item" data-channel="${channel.channel_username}">
+                    <div class="channel-info">
+                        <span class="channel-status" id="status-${channel.channel_username}">❓</span>
+                        <span class="channel-name">${channel.name}</span>
+                        <a href="https://t.me/${channel.channel_username}" target="_blank" class="channel-link">
               Подписаться
             </a>
           </div>

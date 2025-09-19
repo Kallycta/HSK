@@ -113,22 +113,25 @@ module.exports.handler = async (event, context) => {
         
         // Получение обязательных каналов
         if (httpMethod === 'GET' && path === '/api/subscription/channels') {
-            const requiredChannels = process.env.REQUIRED_CHANNELS 
-                ? process.env.REQUIRED_CHANNELS.split(',')
-                : ['hsk_channel', 'chinese_learning', 'mandarin_practice'];
+            console.log('Processing channels request');
             
-            const channels = requiredChannels.map(channel => ({
-                username: channel.trim(),
-                name: channel.trim().replace(/_/g, ' ').toUpperCase(),
-                required: true
-            }));
-            
-            return createResponse(200, {
+            // Простейший тест - возвращаем только объект с username
+            const simpleResponse = {
                 success: true,
-                channels: channels,
-                total: channels.length,
+                channels: [
+                    {
+                        channel_username: "rust_live_13",
+                        username: "rust_live_13",
+                        name: "RUST LIVE 13", 
+                        required: true
+                    }
+                ],
+                total: 1,
                 timestamp: new Date().toISOString()
-            });
+            };
+            
+            console.log('Simple response:', JSON.stringify(simpleResponse));
+            return createResponse(200, simpleResponse);
         }
         
         // Проверка подписки пользователя

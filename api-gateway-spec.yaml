@@ -103,33 +103,7 @@ paths:
         '200':
           description: Список обязательных каналов
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  success:
-                    type: boolean
-                    example: true
-                  channels:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        username:
-                          type: string
-                          example: hsk_channel
-                        name:
-                          type: string
-                          example: HSK CHANNEL
-                        required:
-                          type: boolean
-                          example: true
-                  total:
-                    type: integer
-                    example: 3
-                  timestamp:
-                    type: string
-                    format: date-time
+            application/json: {}
         '401':
           description: Неавторизованный доступ
           content:
