@@ -10,9 +10,10 @@ const createResponse = (statusCode, body, headers = {}) => {
         statusCode,
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Origin': 'https://hsk-delta.vercel.app',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, x-api-key, Authorization',
+            'Access-Control-Allow-Credentials': 'true',
             ...headers
         },
         body: JSON.stringify(body)
