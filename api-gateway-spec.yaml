@@ -67,6 +67,30 @@ paths:
         tag: $latest
 
   /api/subscription/channels:
+    options:
+      summary: CORS preflight для получения каналов
+      description: Обработка CORS preflight запроса
+      operationId: channelsCorsOptions
+      tags:
+        - Subscription
+      responses:
+        '200':
+          description: CORS preflight response
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ed7ivm48jur40il1m8
+        service_account_id: ajevmvf8t8qda5d7lqlp
+        tag: $latest
     get:
       summary: Получить список обязательных каналов
       description: Возвращает список каналов, на которые пользователь должен быть подписан
@@ -125,6 +149,30 @@ paths:
         tag: $latest
 
   /api/subscription/check:
+    options:
+      summary: CORS preflight для проверки подписки
+      description: Обработка CORS preflight запроса
+      operationId: checkCorsOptions
+      tags:
+        - Subscription
+      responses:
+        '200':
+          description: CORS preflight response
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+      x-yc-apigateway-integration:
+        type: cloud_functions
+        function_id: d4ed7ivm48jur40il1m8
+        service_account_id: ajevmvf8t8qda5d7lqlp
+        tag: $latest
     post:
       summary: Проверить подписку пользователя
       description: Проверяет, подписан ли пользователь на все обязательные каналы
