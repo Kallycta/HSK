@@ -172,6 +172,15 @@ jobs:
         rm -rf node_modules/.cache/
         rm -rf node_modules/.bin/
         
+        # Remove largest files that cause size issues
+        rm -f node_modules/lodash/lodash.js 2>/dev/null || true
+        rm -f node_modules/ajv/dist/ajv.bundle.js 2>/dev/null || true
+        rm -f node_modules/psl/dist/psl.mjs 2>/dev/null || true
+        rm -f node_modules/bluebird/js/browser/bluebird.js 2>/dev/null || true
+        rm -f node_modules/psl/data/rules.js 2>/dev/null || true
+        rm -f node_modules/psl/dist/psl.umd.cjs 2>/dev/null || true
+        rm -f node_modules/psl/dist/psl.cjs 2>/dev/null || true
+        
         # Проверяем размер node_modules
         NODE_MODULES_SIZE=$(du -sm node_modules/ | cut -f1)
         echo "📦 node_modules size: ${NODE_MODULES_SIZE} MB"
