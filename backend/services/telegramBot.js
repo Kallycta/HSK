@@ -112,6 +112,8 @@ class TelegramBotService {
    * @returns {Promise<boolean>} - true если подписан, false если нет
    */
   async checkChannelSubscription(userId, channelUsername) {
+    console.log(`🔍 Starting subscription check for user ${userId} to channel ${channelUsername}`);
+    
     // Проверяем что бот инициализирован
     if (!this.bot) {
       throw new Error('Telegram Bot not initialized');
@@ -135,12 +137,28 @@ class TelegramBotService {
     } catch (error) {
       // Логируем ошибку проверки подписки
       console.error(`❌ Error checking subscription for user ${userId} to ${channelUsername}:`, error.message);
+      console.log('🔍 Error details:', JSON.stringify(error.response || error.body || error, null, 2));
       
-      // Если канал не найден или бот не админ - считаем что не подписан
-      if (error.response && error.response.error_code === 400) {
-        return false;  // Возвращаем false при ошибке 400
+      // Проверяем разные структуры ошибок от Telegram API
+      const errorData = error.response || error.body || {};
+      const statusCode = errorData.error_code || (error.response && error.response.statusCode) || error.statusCode;
+      const description = errorData.description || (error.body && error.body.description) || error.message || '';
+      
+      console.log(`🔍 Status code: ${statusCode}, Description: ${description}`);
+      
+      // Если канал не найден, бот не админ, или пользователь недействителен - считаем что не подписан
+      if (statusCode === 400) {
+        if (description.includes('PARTICIPANT_ID_INVALID')) {
+          console.warn(`⚠️ Invalid user ID ${userId} - user may not exist or bot cannot access user info`);
+          return false;  // Возвращаем false для недействительного пользователя
+        } else if (description.includes('CHAT_NOT_FOUND')) {
+          console.warn(`⚠️ Channel ${channelUsername} not found or bot is not admin`);
+          return false;  // Возвращаем false для недоступного канала
+        }
+        return false;  // Возвращаем false при любой ошибке 400
       }
       
+      console.error('🚨 Throwing error:', error);
       throw error;  // Пробрасываем другие ошибки
     }
   }

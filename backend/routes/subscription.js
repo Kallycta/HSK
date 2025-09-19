@@ -35,8 +35,11 @@ const validateApiKey = (req, res, next) => {
 const validateTelegramWebApp = (req, res, next) => {
   const { initData } = req.body;                             // Извлекаем initData из тела запроса
   
+  console.log('🔍 validateTelegramWebApp called with:', { initData: initData ? 'present' : 'missing' });
+  
   // Проверяем наличие обязательного параметра initData
   if (!initData) {
+    console.log('❌ Missing initData in request');
     return res.status(400).json({ 
       error: 'Missing initData',                             // Отсутствуют данные Telegram
       message: 'Telegram Web App initData is required'       // Требуются данные из Mini App
@@ -44,12 +47,17 @@ const validateTelegramWebApp = (req, res, next) => {
   }
 
   try {
+    console.log('🔍 Parsing initData:', initData.substring(0, 100) + '...');
+    
     // Парсим URL-параметры из строки initData
     const urlParams = new URLSearchParams(initData);        // Создаем объект для работы с параметрами
     const userParam = urlParams.get('user');               // Извлекаем параметр 'user'
     
+    console.log('👤 User param:', userParam ? 'found' : 'not found');
+    
     // Проверяем наличие пользовательских данных
     if (!userParam) {
+      console.log('❌ User param not found in initData');
       return res.status(400).json({ 
         error: 'Invalid initData',                          // Некорректные данные initData
         message: 'User data not found in initData'          // Данные пользователя не найдены
@@ -59,8 +67,11 @@ const validateTelegramWebApp = (req, res, next) => {
     // Парсим JSON строку с данными пользователя
     const userData = JSON.parse(userParam);                 // Преобразуем JSON строку в объект
     
+    console.log('✅ Parsed user data:', { id: userData.id, first_name: userData.first_name });
+    
     // Проверяем наличие ID пользователя
     if (!userData.id) {
+      console.log('❌ User ID not found in parsed data');
       return res.status(400).json({ 
         error: 'Invalid user data',                         // Некорректные данные пользователя
         message: 'User ID not found'                        // ID пользователя не найден
@@ -69,10 +80,11 @@ const validateTelegramWebApp = (req, res, next) => {
     
     // Сохраняем валидированный ID пользователя для использования в маршрутах
     req.telegramUserId = userData.id;                       // Добавляем ID в объект запроса
+    console.log('✅ Telegram user ID set:', userData.id);
     next();                                                 // Передаем управление следующему обработчику
     
   } catch (error) {
-    console.error('Error parsing initData:', error);        // Логируем ошибку парсинга
+    console.error('❌ Error parsing initData:', error);        // Логируем ошибку парсинга
     res.status(400).json({ 
       error: 'Invalid initData format',                     // Некорректный формат данных
       message: 'Failed to parse Telegram Web App data'      // Ошибка обработки данных Mini App
