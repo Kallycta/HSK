@@ -17,7 +17,7 @@ info:
     url: https://opensource.org/licenses/MIT
 
 servers:
-  - url: https://{gateway-id}.apigw.yandexcloud.net
+  - url: https://d5d7374m2hsrgpo1quas.apigw.yandexcloud.net
     description: Yandex Cloud API Gateway
     variables:
       gateway-id:
@@ -62,8 +62,8 @@ paths:
           description: Внутренняя ошибка сервера
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: <API_FUNCTION_ID>
-        service_account_id: <SERVICE_ACCOUNT_ID>
+        function_id: d4ed7ivm48jur40il1m8
+        service_account_id: ajevmvf8t8qda5d7lqlp
         tag: $latest
 
   /api/subscription/channels:
@@ -120,8 +120,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: <API_FUNCTION_ID>
-        service_account_id: <SERVICE_ACCOUNT_ID>
+        function_id: d4ed7ivm48jur40il1m8
+        service_account_id: ajevmvf8t8qda5d7lqlp
         tag: $latest
 
   /api/subscription/check:
@@ -205,8 +205,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: <API_FUNCTION_ID>
-        service_account_id: <SERVICE_ACCOUNT_ID>
+        function_id: d4ed7ivm48jur40il1m8
+        service_account_id: ajevmvf8t8qda5d7lqlp
         tag: $latest
 
   /api/telegram/send-message:
@@ -282,8 +282,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: <API_FUNCTION_ID>
-        service_account_id: <SERVICE_ACCOUNT_ID>
+        function_id: d4ed7ivm48jur40il1m8
+        service_account_id: ajevmvf8t8qda5d7lqlp
         tag: $latest
 
   /webhook/telegram:
@@ -372,8 +372,8 @@ paths:
                     example: Internal server error
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: <TELEGRAM_WEBHOOK_FUNCTION_ID>
-        service_account_id: <SERVICE_ACCOUNT_ID>
+        function_id: d4e0qe6fkibtpo90q2gv
+        service_account_id: ajevmvf8t8qda5d7lqlp
         tag: $latest
 
 components:
