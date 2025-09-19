@@ -372,7 +372,7 @@ paths:
                     example: Internal server error
       x-yc-apigateway-integration:
         type: cloud_functions
-        function_id: d4e0qe6fkibtpo90q2gv
+        function_id: d4ed7ivm48jur40il1m8
         service_account_id: ajevmvf8t8qda5d7lqlp
         tag: $latest
 

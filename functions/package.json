@@ -20,7 +20,10 @@
   "author": "HSK Bot Team",
   "license": "MIT",
   "dependencies": {
-    "node-telegram-bot-api": "^0.61.0"
+    "node-telegram-bot-api": "^0.61.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "psl": "^1.9.0"
   },
 
   "engines": {

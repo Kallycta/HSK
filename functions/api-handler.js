@@ -21,8 +21,11 @@ const createResponse = (statusCode, body, headers = {}) => {
 
 // Проверка API ключа
 const validateApiKey = (headers) => {
-    const apiKey = headers['x-api-key'] || headers['X-API-Key'];
+    const apiKey = headers['x-api-key'] || headers['X-API-Key'] || headers['X-Api-Key'];
     const expectedApiKey = process.env.API_KEY || 'hsk_api_key_2024';
+    console.log('Received API key:', apiKey ? 'PRESENT' : 'MISSING');
+    console.log('Expected API key:', expectedApiKey ? 'SET' : 'NOT SET');
+    console.log('Keys match:', apiKey === expectedApiKey);
     return apiKey === expectedApiKey;
 };
 
@@ -76,6 +79,11 @@ const checkUserSubscriptions = async (userId) => {
 // Основная функция-обработчик
 module.exports.handler = async (event, context) => {
     const { httpMethod, path, headers, body, isBase64Encoded, queryStringParameters } = event;
+    
+    // Логирование для отладки
+    console.log('Event:', JSON.stringify(event, null, 2));
+    console.log('Headers:', JSON.stringify(headers, null, 2));
+    console.log('API_KEY env:', process.env.API_KEY ? 'SET' : 'NOT SET');
     
     try {
         // CORS preflight

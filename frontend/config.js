@@ -7,7 +7,7 @@ const CONFIG = {
   production: {
     // Yandex Cloud API Gateway URL
         // Yandex Cloud API Gateway URL
-    API_BASE_URL: 'https://d5d7374m2hsrgpo1quas.bixf7e87.apigw.yandexcloud.net', 
+    API_BASE_URL: 'https://d5d7374m2hsrgpo1quas.bixf7e87.apigw.yandexcloud.net/api', 
     API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
   }
 };
