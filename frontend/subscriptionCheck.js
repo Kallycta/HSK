@@ -41,28 +41,9 @@ class SubscriptionCheck {
           
           <div id="channels-list" class="channels-list hidden"></div>
           
-          <div class="subscription-actions">
-            <button id="check-subscriptions-btn" class="big-btn" disabled>
-              <span class="btn-text">Проверить подписки</span>
-              <span class="btn-spinner hidden">⏳</span>
-            </button>
-          </div>
+
           
-          <div class="subscription-help">
-            <details>
-              <summary>❓ Нужна помощь?</summary>
-              <div class="help-content">
-                <p><strong>Как подписаться на канал:</strong></p>
-                <ol>
-                  <li>Нажмите на ссылку канала</li>
-                  <li>Нажмите кнопку "Подписаться" или "Join"</li>
-                  <li>Вернитесь в приложение</li>
-                  <li>Нажмите "Проверить подписки"</li>
-                </ol>
-                <p><em>Подписка должна быть активной для доступа к приложению.</em></p>
-              </div>
-            </details>
-          </div>
+
         </div>
       </div>
     `;
@@ -74,11 +55,8 @@ class SubscriptionCheck {
    * Привязка событий
    */
   bindEvents() {
-    const checkBtn = document.getElementById('check-subscriptions-btn');
-    
-    if (checkBtn) {
-      checkBtn.addEventListener('click', () => this.checkSubscriptions());
-    }
+    // Больше не нужно привязывать события для кнопки проверки
+    // Проверка будет происходить автоматически
   }
   
   /**
@@ -131,7 +109,7 @@ class SubscriptionCheck {
       console.log('📋 Set requiredChannels:', this.requiredChannels);
       
       this.renderChannelsList();
-      this.enableCheckButton();
+      this.hideLoading();
       
     } catch (error) {
       console.error('❌ Failed to load channels:', error);
@@ -221,6 +199,11 @@ class SubscriptionCheck {
       linkElement.textContent = originalText;
       linkElement.style.background = '';
     }, 2000);
+    
+    // Автоматически проверяем подписки через 3 секунды
+    setTimeout(() => {
+      this.checkSubscriptions();
+    }, 3000);
   }
   
   /**
@@ -231,7 +214,6 @@ class SubscriptionCheck {
     
     this.isChecking = true;
     this.showCheckingStatus('Проверяем ваши подписки...');
-    this.disableCheckButton();
     
     try {
       const result = await window.telegramApp.checkSubscriptions();
@@ -264,7 +246,6 @@ class SubscriptionCheck {
       this.showError(errorMessage);
     } finally {
       this.isChecking = false;
-      this.enableCheckButton();
     }
   }
   
@@ -299,7 +280,7 @@ class SubscriptionCheck {
             </ul>
           </div>
         ` : ''}
-        <p class="help-text">Подпишитесь на все каналы и нажмите "Проверить подписки" снова.</p>
+        <p class="help-text">Подпишитесь на все каналы. Проверка произойдет автоматически.</p>
       </div>
     `;
     
@@ -363,6 +344,16 @@ class SubscriptionCheck {
   }
   
   /**
+   * Скрыть состояние загрузки
+   */
+  hideLoading() {
+    const statusDiv = document.getElementById('subscription-status');
+    if (!statusDiv) return;
+    
+    statusDiv.innerHTML = '';
+  }
+  
+  /**
    * Показать статус проверки подписок (не скрывая каналы)
    */
   showCheckingStatus(message) {
@@ -401,31 +392,7 @@ class SubscriptionCheck {
     `;
   }
   
-  /**
-   * Включить кнопку проверки
-   */
-  enableCheckButton() {
-    const btn = document.getElementById('check-subscriptions-btn');
-    
-    if (btn) {
-      btn.disabled = false;
-      btn.querySelector('.btn-text').textContent = 'Проверить подписки';
-      btn.querySelector('.btn-spinner').classList.add('hidden');
-    }
-  }
-  
-  /**
-   * Отключить кнопку проверки
-   */
-  disableCheckButton() {
-    const btn = document.getElementById('check-subscriptions-btn');
-    
-    if (btn) {
-      btn.disabled = true;
-      btn.querySelector('.btn-text').textContent = 'Проверяем...';
-      btn.querySelector('.btn-spinner').classList.remove('hidden');
-    }
-  }
+
   
   /**
    * Обработчик получения доступа
