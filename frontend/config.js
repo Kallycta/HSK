@@ -2,13 +2,12 @@
 const CONFIG = { 
   development: {
     API_BASE_URL: 'http://localhost:3000/api',
-    API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
+    API_KEY: 'hsk_api_key_2024'
   },
   production: {
     // Yandex Cloud API Gateway URL
-        // Yandex Cloud API Gateway URL
     API_BASE_URL: 'https://d5digcd630nfv5evp48l.svoluuab.apigw.yandexcloud.net', 
-    API_KEY: '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
+    API_KEY: 'hsk_api_key_2024'
   }
 };
 
