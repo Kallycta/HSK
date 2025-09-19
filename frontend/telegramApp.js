@@ -201,6 +201,7 @@ class TelegramApp {
           'x-api-key': this.apiConfig.apiKey
         },
         body: JSON.stringify({
+          userId: this.user?.id,
           initData: initData
         })
       });
