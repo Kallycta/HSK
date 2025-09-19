@@ -11,7 +11,7 @@ class TelegramApp {
     
     // Конфигурация API из глобальной конфигурации
     this.apiConfig = {
-      baseUrl: (window.APP_CONFIG?.API_BASE_URL || 'http://localhost:3000') + '/api',
+      baseUrl: window.APP_CONFIG?.API_BASE_URL || 'http://localhost:3000',
       apiKey: window.APP_CONFIG?.API_KEY || '881f8e616c8deb37a9eb7c485c3dcee306dae17656bed5b4b8783549300fcaac'
     };
     
